@@ -18,8 +18,8 @@ export default class MyCircle {
 
     p5.translate(this._pos);
     p5.noStroke();
-    p5.fill('orange');
-    p5.ellipse(0, 0, this._size);
+    p5.fill('white');
+    p5.triangle(0, 0, 0, this._size, this._size, this._size);
 
     p5.pop();
   }
