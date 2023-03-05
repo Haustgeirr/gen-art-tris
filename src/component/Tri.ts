@@ -1,0 +1,27 @@
+import p5 from '../trigen';
+import P5 from 'p5';
+
+export default class Tri {
+  _p5: P5;
+  _pos: P5.Vector;
+  _size: number;
+
+  constructor(atPosition: P5.Vector, size: number) {
+    this._p5 = p5;
+    this._pos = atPosition;
+    this._size = size;
+  }
+
+  draw() {
+    const p5 = this._p5; // just for convenience
+
+    p5.push();
+
+    p5.translate(this._pos);
+    p5.noStroke();
+    p5.fill('white');
+    p5.triangle(0, 0, 0, this._size, this._size, this._size);
+
+    p5.pop();
+  }
+}

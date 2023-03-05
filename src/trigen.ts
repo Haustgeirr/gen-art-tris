@@ -1,13 +1,13 @@
 import p5 from 'p5';
 
-import MyCircle from './component/MyCircle';
+import Tri from './component/Tri';
 
 const gridSize = 32;
 const cellsX = Math.floor(window.innerWidth / gridSize);
 const cellsY = Math.floor(window.innerHeight / gridSize);
 
 const sketch = (p5: p5) => {
-  const myCircles: MyCircle[] = [];
+  const myCircles: Tri[] = [];
 
   p5.setup = () => {
     p5.createCanvas(cellsX * gridSize, cellsY * gridSize).parent(
@@ -20,8 +20,8 @@ const sketch = (p5: p5) => {
 
     for (let x = 0; x < cellsX; x++) {
       for (let y = 0; y < cellsY; y++) {
-        // const circlePos = p5.createVector(x * gridSize, y * gridSize);
-        // myCircles.push(new MyCircle(p5, circlePos, gridSize));
+        const circlePos = p5.createVector(x * gridSize, y * gridSize);
+        myCircles.push(new Tri(circlePos, gridSize));
       }
     }
   };
@@ -31,4 +31,5 @@ const sketch = (p5: p5) => {
   };
 };
 
-new p5(sketch);
+const P5 = new p5(sketch);
+export default P5;
