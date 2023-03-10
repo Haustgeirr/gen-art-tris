@@ -49,8 +49,19 @@ const triOptions: TriType[] = [
   },
 ];
 
-const sketch = (p5: p5) => {
-  const tris: Tri[] = [];
+function generateCellGrid(): (number | null)[] {
+  const cellGrid = new Array(cellsX * cellsY).fill(-1);
+
+  for (let i = 0; i < cellGrid.length; i++) {
+    const option = Math.floor(Math.random() * triOptions.length + 1);
+    cellGrid[i] = option >= triOptions.length ? null : option;
+  }
+
+  return cellGrid;
+}
+
+function sketch(p5: p5) {
+  // let tris: Tri[] = [];
 
   const drawTri = (position: p5.Vector, size: number, triIndex: number) => {
     return new Tri(
@@ -59,6 +70,22 @@ const sketch = (p5: p5) => {
       triOptions[triIndex].style,
       triOptions[triIndex].dir
     );
+  };
+
+  const drawTris = (cellGrid: (number | null)[]) => {
+    const tris = [];
+    for (let x = 0; x < cellsX; x++) {
+      for (let y = 0; y < cellsY; y++) {
+        const pos = p5.createVector(x * gridSize, y * gridSize);
+        const triIndex = cellGrid[x + y * cellsX];
+        if (triIndex === null) {
+          continue;
+        }
+        tris.push(drawTri(pos, gridSize, triIndex));
+      }
+    }
+
+    return tris;
   };
 
   p5.setup = () => {
@@ -70,19 +97,21 @@ const sketch = (p5: p5) => {
         )
     );
 
-    for (let x = 0; x < cellsX; x++) {
-      for (let y = 0; y < cellsY; y++) {
-        const pos = p5.createVector(x * gridSize, y * gridSize);
-        const triIndex = Math.floor(Math.random() * triOptions.length);
-        tris.push(drawTri(pos, gridSize, triIndex));
-      }
-    }
+    // const cellGrid = generateCellGrid();
+    // drawTris(cellGrid);
   };
 
   p5.draw = () => {
-    tris.forEach((circle) => circle.draw());
+    let frameTris = drawTris(generateCellGrid());
+
+    // refresh every 1 second
+    if (p5.frameCount % 60 === 0) {
+      p5.background(200);
+      frameTris = drawTris(generateCellGrid());
+      frameTris.forEach((tri) => tri.draw());
+    }
   };
-};
+}
 
 const P5 = new p5(sketch);
 export default P5;
