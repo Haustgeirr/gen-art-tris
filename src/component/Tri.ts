@@ -55,6 +55,49 @@ export default class Tri {
           case 'down':
             return p5.triangle(size, size, 0, size, centre, centre);
         }
+      case 'inverted':
+        switch (this._dir) {
+          case 'left':
+            return p5
+              .beginShape()
+              .vertex(0, 0)
+              .vertex(size, 0)
+              .vertex(size, size)
+              .vertex(0, size)
+              .vertex(centre, centre)
+              .vertex(0, 0)
+              .endShape();
+          case 'up':
+            return p5
+              .beginShape()
+              .vertex(0, 0)
+              .vertex(centre, centre)
+              .vertex(size, 0)
+              .vertex(size, size)
+              .vertex(0, size)
+              .vertex(0, 0)
+              .endShape();
+          case 'right':
+            return p5
+              .beginShape()
+              .vertex(0, 0)
+              .vertex(size, 0)
+              .vertex(centre, centre)
+              .vertex(size, size)
+              .vertex(0, size)
+              .vertex(0, 0)
+              .endShape();
+          case 'down':
+            return p5
+              .beginShape()
+              .vertex(0, 0)
+              .vertex(size, 0)
+              .vertex(size, size)
+              .vertex(centre, centre)
+              .vertex(0, size)
+              .vertex(0, 0)
+              .endShape();
+        }
       default:
         return p5.triangle(0, 0, size, 0, size, size);
     }

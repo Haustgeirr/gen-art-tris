@@ -47,6 +47,22 @@ const triOptions: TriType[] = [
     style: 'half',
     dir: 'down',
   },
+  {
+    style: 'inverted',
+    dir: 'left',
+  },
+  {
+    style: 'inverted',
+    dir: 'up',
+  },
+  {
+    style: 'inverted',
+    dir: 'right',
+  },
+  {
+    style: 'inverted',
+    dir: 'down',
+  },
 ];
 
 function generateCellGrid(): (number | null)[] {
@@ -106,7 +122,7 @@ function sketch(p5: p5) {
 
     // refresh every 1 second
     if (p5.frameCount % 60 === 0) {
-      p5.background(200);
+      p5.background(p5.color(15, 23, 42));
       frameTris = drawTris(generateCellGrid());
       frameTris.forEach((tri) => tri.draw());
     }
