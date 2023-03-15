@@ -78,6 +78,7 @@ function generateCellGrid(): (number | null)[] {
 
 function sketch(p5: p5) {
   // let tris: Tri[] = [];
+  let tri: Tri | null = null;
 
   const drawTri = (position: p5.Vector, size: number, triIndex: number) => {
     return new Tri(
@@ -113,18 +114,19 @@ function sketch(p5: p5) {
         )
     );
 
-    // const cellGrid = generateCellGrid();
-    // drawTris(cellGrid);
+    tri = drawTri(
+      p5.createVector(
+        window.innerWidth / 2 - gridSize / 2,
+        window.innerHeight / 2 - gridSize / 2
+      ),
+      gridSize,
+      1
+    );
   };
 
   p5.draw = () => {
-    let frameTris = drawTris(generateCellGrid());
-
-    // refresh every 1 second
-    if (p5.frameCount % 60 === 0) {
-      p5.background(p5.color(15, 23, 42));
-      frameTris = drawTris(generateCellGrid());
-      frameTris.forEach((tri) => tri.draw());
+    if (tri) {
+      tri.draw();
     }
   };
 }
