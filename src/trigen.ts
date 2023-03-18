@@ -70,6 +70,7 @@ function generateCellGrid(): (number | null)[] {
 
   for (let i = 0; i < cellGrid.length; i++) {
     const option = Math.floor(Math.random() * triOptions.length + 1);
+    // const option = 1;
     cellGrid[i] = option >= triOptions.length ? null : option;
   }
 
@@ -79,17 +80,18 @@ function generateCellGrid(): (number | null)[] {
 function sketch(p5: p5) {
   // let tris: Tri[] = [];
   let tri: Tri | null = null;
+  let frameTris: Tri[] | null = null;
 
-  const drawTri = (position: p5.Vector, size: number, triIndex: number) => {
+  function drawTri(position: p5.Vector, size: number, triIndex: number) {
     return new Tri(
       position,
       size,
       triOptions[triIndex].style,
       triOptions[triIndex].dir
     );
-  };
+  }
 
-  const drawTris = (cellGrid: (number | null)[]) => {
+  function drawTris(cellGrid: (number | null)[]) {
     const tris = [];
     for (let x = 0; x < cellsX; x++) {
       for (let y = 0; y < cellsY; y++) {
@@ -103,7 +105,7 @@ function sketch(p5: p5) {
     }
 
     return tris;
-  };
+  }
 
   p5.setup = () => {
     p5.createCanvas(cellsX * gridSize, cellsY * gridSize).parent(
@@ -114,20 +116,36 @@ function sketch(p5: p5) {
         )
     );
 
-    tri = drawTri(
-      p5.createVector(
-        window.innerWidth / 2 - gridSize / 2,
-        window.innerHeight / 2 - gridSize / 2
-      ),
-      gridSize,
-      1
-    );
+    // tri = drawTri(
+    //   p5.createVector(
+    //     window.innerWidth / 2 - gridSize / 2,
+    //     window.innerHeight / 2 - gridSize / 2
+    //   ),
+    //   gridSize,
+    //   1
+    // );
+    frameTris = drawTris(generateCellGrid());
   };
 
   p5.draw = () => {
-    if (tri) {
-      tri.draw();
+    // if (tri) {
+    //   tri.draw();
+    // }
+
+    if (!frameTris) {
+      return;
     }
+
+    // let frameTris = drawTris(generateCellGrid());
+
+    // refresh every 1 second
+    if (p5.frameCount % 60 === 0) {
+      p5.background(p5.color(15, 23, 42));
+      // frameTris = drawTris(generateCellGrid());
+      // console.log('🚀 ~ file: trigen.ts:139 ~ sketch ~ frameTris:', frameTris);
+    }
+
+    frameTris.forEach((tri) => tri.draw());
   };
 }
 
