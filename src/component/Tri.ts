@@ -146,12 +146,16 @@ export default class Tri {
     return p5.endShape();
   }
 
-  animateTri() {
+  animateTri(reverse: boolean = false) {
     const animateDuration = 15;
     const p5 = this._p5;
     const size = this._size;
     const centre = size / 2;
     const frame = p5.frameCount - this.frame;
+
+    function easeOutExpo(x: number): number {
+      return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+    }
 
     const points: Point[] = [
       { x: 0, y: 0 },
@@ -172,14 +176,21 @@ export default class Tri {
       return this.drawStaticShape(points);
     }
 
-    const { startPoint, endPoint } = animatedPoint.animation;
+    let { startPoint, endPoint } = animatedPoint.animation;
+
+    if (reverse) {
+      const temp = startPoint;
+      startPoint = endPoint;
+      endPoint = temp;
+    }
+
     const end = p5.createVector(endPoint.x, endPoint.y);
     const start = p5.createVector(startPoint.x, startPoint.y);
 
     const direction = end.sub(start).normalize();
     const dist = end.dist(start);
-    const speed = dist / animateDuration;
-    const currentPoint = start.add(direction.mult(speed * frame));
+    const speed = easeOutExpo(frame / animateDuration) * dist;
+    const currentPoint = start.add(direction.mult(speed));
 
     p5.beginShape();
 
