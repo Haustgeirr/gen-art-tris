@@ -152,8 +152,8 @@ function sketch(p5: p5) {
         // for each cell, choose a random tri
         const randomTri = Math.floor(Math.random() * triOptions.length);
 
-        const positionX = Math.floor(cell / cellsX);
-        const positionY = cell % cellsY;
+        const positionX = cell % cellsX;
+        const positionY = Math.floor(cell / cellsX);
 
         //change the tri
         frameTris[cell] = drawTri(
