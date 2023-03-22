@@ -1,23 +1,59 @@
 import p5 from '../trigen';
 import P5 from 'p5';
 
-interface StaticPoint {
+interface Point {
   x: number;
   y: number;
 }
 
-interface AnimatedPoint {
-  animation: {
-    startPoint: StaticPoint;
-    endPoint: StaticPoint;
-  };
+interface Animation {
+  duration: number;
+  startFrame: Point[];
+  endFrame: Point[];
 }
 
-type Point = StaticPoint | AnimatedPoint;
-
-function isAnimatedPoint(point: Point): point is AnimatedPoint {
-  return (point as AnimatedPoint).animation !== undefined;
+function easeOutExpo(x: number): number {
+  return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
 }
+
+const config = {
+  tri: {
+    duration: 15,
+    shape: [
+      { x: 0, y: 0 },
+      { x: 1, y: 1 },
+      { x: 0, y: 1 },
+    ],
+    animations: {
+      in: {
+        duration: 15,
+        startFrame: [
+          { x: 0, y: 0 },
+          { x: 1, y: 1 },
+          { x: 0.5, y: 0.5 },
+        ],
+        endFrame: [
+          { x: 0, y: 0 },
+          { x: 1, y: 1 },
+          { x: 0, y: 1 },
+        ],
+      },
+      out: {
+        duration: 15,
+        startFrame: [
+          { x: 0, y: 0 },
+          { x: 1, y: 1 },
+          { x: 0, y: 1 },
+        ],
+        endFrame: [
+          { x: 0, y: 0 },
+          { x: 1, y: 1 },
+          { x: 0.5, y: 0.5 },
+        ],
+      },
+    },
+  },
+};
 
 export default class Tri {
   _p5: P5;
@@ -27,6 +63,7 @@ export default class Tri {
   _dir: string | undefined;
   _colour: string;
   frame: number;
+  _animation: Animation | undefined;
 
   constructor(
     position: P5.Vector,
@@ -43,6 +80,7 @@ export default class Tri {
     this._dir = dir;
     this._colour = colour ?? 'white';
     this.frame = p5.frameCount;
+    this._animation = config.tri.animations.in;
   }
 
   drawTri() {
@@ -129,77 +167,57 @@ export default class Tri {
     }
   }
 
-  drawStaticShape(points: Point[]) {
+  drawShape(shape: Point[]) {
     const p5 = this._p5;
 
     p5.beginShape();
 
-    points.forEach((point) => {
-      if (isAnimatedPoint(point)) {
-        const { endPoint } = point.animation;
-        this._p5.vertex(endPoint.x, endPoint.y);
-      } else {
-        this._p5.vertex(point.x, point.y);
-      }
+    shape.forEach((point) => {
+      p5.vertex(point.x * this._size, point.y * this._size);
     });
 
     return p5.endShape();
   }
 
-  animateTri(reverse: boolean = false) {
-    const animateDuration = 15;
+  interpolate(
+    startPoint: Point,
+    endPoint: Point,
+    duration: number,
+    frame: number
+  ) {
     const p5 = this._p5;
-    const size = this._size;
-    const centre = size / 2;
-    const frame = p5.frameCount - this.frame;
 
-    function easeOutExpo(x: number): number {
-      return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
-    }
-
-    const points: Point[] = [
-      { x: 0, y: 0 },
-      { x: size, y: size },
-      {
-        animation: {
-          startPoint: { x: centre, y: centre },
-          endPoint: { x: 0, y: size },
-        },
-      },
-    ];
-
-    const animatedPoint = points.find((point) => isAnimatedPoint(point)) as
-      | AnimatedPoint
-      | undefined;
-
-    if (!animatedPoint || frame > animateDuration) {
-      return this.drawStaticShape(points);
-    }
-
-    let { startPoint, endPoint } = animatedPoint.animation;
-
-    if (reverse) {
-      const temp = startPoint;
-      startPoint = endPoint;
-      endPoint = temp;
-    }
-
-    const end = p5.createVector(endPoint.x, endPoint.y);
-    const start = p5.createVector(startPoint.x, startPoint.y);
+    const start = p5.createVector(startPoint.x, startPoint.y).mult(this._size);
+    const end = p5.createVector(endPoint.x, endPoint.y).mult(this._size);
 
     const direction = end.sub(start).normalize();
     const dist = end.dist(start);
-    const speed = easeOutExpo(frame / animateDuration) * dist;
+    const speed = frame * (dist / duration);
     const currentPoint = start.add(direction.mult(speed));
+
+    return currentPoint;
+  }
+
+  animate(animation: Animation) {
+    const { duration, startFrame, endFrame } = animation;
+    const p5 = this._p5;
+    const frame = p5.frameCount - this.frame;
+
+    if (frame > duration) {
+      this._animation = undefined;
+      return;
+    }
 
     p5.beginShape();
 
-    points.forEach((point) => {
-      if (isAnimatedPoint(point)) {
-        p5.vertex(currentPoint.x, currentPoint.y);
-      } else {
-        p5.vertex(point.x, point.y);
-      }
+    startFrame.forEach((point, index) => {
+      const currentPoint = this.interpolate(
+        point,
+        endFrame[index],
+        duration,
+        frame
+      );
+      p5.vertex(currentPoint.x, currentPoint.y);
     });
 
     return p5.endShape();
@@ -212,7 +230,13 @@ export default class Tri {
     p5.noStroke();
     p5.translate(this._position);
     p5.fill(this._colour);
-    this.animateTri();
+
+    if (this._animation) {
+      this.animate(this._animation);
+    } else {
+      this.drawShape(config.tri.shape);
+    }
+
     p5.pop();
   }
 }
