@@ -80,7 +80,6 @@ function generateCellGrid(): (number | null)[] {
 }
 
 function sketch(p5: p5) {
-  // let tris: Tri[] = [];
   let tri: Tri | null = null;
   let frameTris: (Tri | null)[] | null = null;
 
@@ -89,7 +88,8 @@ function sketch(p5: p5) {
       position,
       size,
       triOptions[triIndex].style,
-      triOptions[triIndex].dir
+      triOptions[triIndex].dir,
+      60
     );
   }
 
@@ -111,6 +111,7 @@ function sketch(p5: p5) {
   }
 
   p5.setup = () => {
+    p5.frameRate(60);
     p5.createCanvas(cellsX * gridSize, cellsY * gridSize).parent(
       p5
         .createDiv('')
@@ -119,22 +120,53 @@ function sketch(p5: p5) {
         )
     );
 
-    frameTris = drawTris(generateCellGrid());
+    // frameTris = drawTris(generateCellGrid());
+    frameTris = drawTris(new Array(cellsX * cellsY).fill(null));
   };
 
   p5.draw = () => {
+    const drawGrid = true;
+    const debug = false;
+    p5.background(p5.color(15, 23, 42));
+
+    if (drawGrid) {
+      p5.stroke(p5.color(30, 46, 84));
+      p5.strokeWeight(1);
+      for (let x = 0; x < cellsX; x++) {
+        for (let y = 0; y < cellsY; y++) {
+          p5.noFill();
+          p5.rect(x * gridSize, y * gridSize, gridSize, gridSize);
+        }
+      }
+    }
+
+    //if debug draw a single tri in the centre
+    if (debug) {
+      if (!tri) {
+        tri = drawTri(
+          p5.createVector(
+            Math.floor(cellsX / 2) * gridSize,
+            Math.floor(cellsY / 2) * gridSize
+          ),
+          gridSize,
+          0
+        );
+      }
+
+      tri.draw();
+      return;
+    }
+
     if (!frameTris) {
       return;
     }
 
     //choose a random number of frames
-    const randomFrames = Math.floor(Math.random() * 60);
+    const randomFrames = Math.floor(Math.random() * 15);
 
     if (p5.frameCount % randomFrames === 0) {
-      p5.background(p5.color(15, 23, 42));
-
       //choose a random number of cells
-      const randomCellsCount = Math.floor(Math.random() * 18);
+      const randomCellsCount = 1;
 
       // create an array with randomCellsCount elements
       const randomCells = new Array(randomCellsCount).fill(0).map(() => {
