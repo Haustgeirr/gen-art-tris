@@ -89,7 +89,7 @@ function sketch(p5: p5) {
       size,
       triOptions[triIndex].style,
       triOptions[triIndex].dir,
-      45
+      600
     );
   }
 
@@ -120,8 +120,8 @@ function sketch(p5: p5) {
         )
     );
 
-    // frameTris = drawTris(generateCellGrid());
-    frameTris = drawTris(new Array(cellsX * cellsY).fill(null));
+    frameTris = drawTris(generateCellGrid());
+    // frameTris = drawTris(new Array(cellsX * cellsY).fill(null));
   };
 
   p5.draw = () => {
@@ -171,7 +171,7 @@ function sketch(p5: p5) {
     }
 
     //choose a random number of frames
-    const randomFrames = Math.floor(Math.random() * 15);
+    const randomFrames = Math.floor(Math.random() * 2);
 
     if (p5.frameCount % randomFrames === 0) {
       //choose a random number of cells
