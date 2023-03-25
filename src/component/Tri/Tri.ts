@@ -42,14 +42,7 @@ export default class Tri {
   _rotation: number;
   _elapsedTime: number;
 
-  constructor(
-    position: P5.Vector,
-    size: number,
-    style: string,
-    dir?: string,
-    life?: number,
-    colour?: string
-  ) {
+  constructor(position: P5.Vector, size: number, style: string, dir?: string, life?: number, colour?: string) {
     this._p5 = p5;
 
     this._position = position;
@@ -124,13 +117,7 @@ export default class Tri {
     p5.beginShape();
 
     startFrame.forEach((point, index) => {
-      const currentPoint = this.interpolate(
-        point,
-        endFrame[index],
-        duration,
-        elapsedTime,
-        easing
-      );
+      const currentPoint = this.interpolate(point, endFrame[index], duration, elapsedTime, easing);
       p5.vertex(currentPoint.x, currentPoint.y);
     });
 
@@ -145,13 +132,14 @@ export default class Tri {
     this._elapsedTime = elapsedTime;
   }
 
-  in() {
-    this.startAnimating(this.getAnimation().in);
+  in(onEnd?: () => void) {
+    this.startAnimating(this.getAnimation().in, onEnd);
   }
 
-  out() {
+  out(onEnd?: () => void) {
     this.startAnimating(this.getAnimation().out, () => {
       this._life = 0;
+      onEnd?.();
     });
   }
 

@@ -5,7 +5,7 @@ import Tri from './component/Tri';
 const gridSize = 32;
 const cellsX = Math.floor(window.innerWidth / gridSize);
 const cellsY = Math.floor(window.innerHeight / gridSize);
-const tileChance = 0.5;
+const tileChance = 0.85;
 
 type TriType = {
   style: string;
@@ -71,7 +71,7 @@ function generateCellGrid(): (number | null)[] {
 
   for (let i = 0; i < cellGrid.length; i++) {
     cellGrid[i] = null;
-    if (Math.random() >= tileChance) {
+    if (Math.random() <= tileChance) {
       cellGrid[i] = Math.floor(Math.random() * triOptions.length);
     }
   }
@@ -84,13 +84,7 @@ function sketch(p5: p5) {
   let frameTris: (Tri | null)[] | null = null;
 
   function drawTri(position: p5.Vector, size: number, triIndex: number) {
-    return new Tri(
-      position,
-      size,
-      triOptions[triIndex].style,
-      triOptions[triIndex].dir,
-      1000
-    );
+    return new Tri(position, size, triOptions[triIndex].style, triOptions[triIndex].dir, 1000);
   }
 
   function drawTris(cellGrid: (number | null)[]) {
@@ -113,16 +107,37 @@ function sketch(p5: p5) {
   p5.setup = () => {
     p5.frameRate(60);
     p5.createCanvas(cellsX * gridSize, cellsY * gridSize).parent(
-      p5
-        .createDiv('')
-        .addClass(
-          'justify-center flex h-screen w-screen items-center bg-slate-900 m-0 p-0'
-        )
+      p5.createDiv('').addClass('justify-center flex h-screen w-screen items-center bg-slate-900 m-0 p-0')
     );
 
     frameTris = drawTris(generateCellGrid());
     // frameTris = drawTris(new Array(cellsX * cellsY).fill(null));
   };
+
+  function drawTriInCell(cell: number) {
+    function emptyCell(cell: number) {
+      frameTris[cell] = null;
+    }
+
+    if (frameTris[cell]) {
+      frameTris[cell]?.out(() => {
+        return emptyCell(cell);
+      });
+      return;
+    }
+
+    if (Math.random() > tileChance) {
+      return;
+    }
+
+    // for each cell, choose a random tri
+    const randomTri = Math.floor(Math.random() * triOptions.length);
+    const positionX = cell % cellsX;
+    const positionY = Math.floor(cell / cellsX);
+
+    //change the tri
+    frameTris[cell] = drawTri(p5.createVector(positionX * gridSize, positionY * gridSize), gridSize, randomTri);
+  }
 
   p5.draw = () => {
     const drawGrid = true;
@@ -141,28 +156,27 @@ function sketch(p5: p5) {
 
       p5.noStroke();
       p5.fill(p5.color(30, 46, 84));
-      p5.rect(
-        Math.floor(cellsX / 2) * gridSize,
-        Math.floor(cellsY / 2) * gridSize,
-        gridSize,
-        gridSize
-      );
+      p5.rect(Math.floor(cellsX / 2) * gridSize, Math.floor(cellsY / 2) * gridSize, gridSize, gridSize);
     }
 
     //if debug draw a single tri in the centre
     if (debug) {
-      if (!tri) {
-        tri = drawTri(
-          p5.createVector(
-            Math.floor(cellsX / 2) * gridSize,
-            Math.floor(cellsY / 2) * gridSize
-          ),
-          gridSize,
-          0
-        );
+      const centreCell = Math.floor(cellsX / 2) + Math.floor(cellsY / 2) * cellsX;
+      if (!frameTris[centreCell]) {
+        const positionX = centreCell % cellsX;
+        const positionY = Math.floor(centreCell / cellsX);
+
+        tri = drawTri(p5.createVector(positionX * gridSize, positionY * gridSize), gridSize, 0);
       }
 
-      tri.draw();
+      if (frameTris[centreCell]) {
+        frameTris[centreCell].draw();
+      }
+
+      if (p5.frameCount % 30 === 0) {
+        drawTriInCell(centreCell);
+      }
+
       return;
     }
 
@@ -184,25 +198,7 @@ function sketch(p5: p5) {
         return randomCell;
       });
 
-      randomCells.forEach((cell) => {
-        if (Math.random() < tileChance) {
-          frameTris[cell] = null;
-          return;
-        }
-
-        // for each cell, choose a random tri
-        const randomTri = Math.floor(Math.random() * triOptions.length);
-
-        const positionX = cell % cellsX;
-        const positionY = Math.floor(cell / cellsX);
-
-        //change the tri
-        frameTris[cell] = drawTri(
-          p5.createVector(positionX * gridSize, positionY * gridSize),
-          gridSize,
-          randomTri
-        );
-      });
+      randomCells.forEach((cell) => drawTriInCell(cell));
     }
 
     frameTris.forEach((tri) => {
