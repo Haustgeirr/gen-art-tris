@@ -10,9 +10,8 @@ const config: Config = {
     ],
     animations: {
       in: {
-        duration: 15,
+        duration: 150,
         easing: easeOutExpo,
-
         startFrame: [
           { x: 0, y: 0 },
           { x: 1, y: 1 },
@@ -25,9 +24,8 @@ const config: Config = {
         ],
       },
       out: {
-        duration: 15,
+        duration: 150,
         easing: easeInExpo,
-
         startFrame: [
           { x: 0, y: 0 },
           { x: 1, y: 1 },
@@ -49,9 +47,8 @@ const config: Config = {
     ],
     animations: {
       in: {
-        duration: 15,
+        duration: 150,
         easing: easeOutExpo,
-
         startFrame: [
           { x: 0, y: 0 },
           { x: 0, y: 0.5 },
@@ -64,9 +61,8 @@ const config: Config = {
         ],
       },
       out: {
-        duration: 15,
+        duration: 150,
         easing: easeInExpo,
-
         startFrame: [
           { x: 0, y: 0 },
           { x: 0.5, y: 0.5 },
@@ -80,12 +76,6 @@ const config: Config = {
       },
     },
   },
-  // .vertex(0, 0)
-  // .vertex(size, 0)
-  // .vertex(size, size)
-  // .vertex(0, size)
-  // .vertex(centre, centre)
-  // .vertex(0, 0)
   inverted: {
     shape: [
       { x: 0, y: 0 },
@@ -97,7 +87,7 @@ const config: Config = {
     ],
     animations: {
       in: {
-        duration: 15,
+        duration: 150,
         easing: easeOutExpo,
         startFrame: [
           { x: 0, y: 0.5 },
@@ -117,7 +107,7 @@ const config: Config = {
         ],
       },
       out: {
-        duration: 15,
+        duration: 150,
         easing: easeInExpo,
         startFrame: [
           { x: 0, y: 0 },
@@ -147,9 +137,8 @@ const config: Config = {
     ],
     animations: {
       in: {
-        duration: 15,
+        duration: 150,
         easing: easeOutExpo,
-
         startFrame: [
           { x: 0.5, y: 0 },
           { x: 0.5, y: 0 },
@@ -164,9 +153,8 @@ const config: Config = {
         ],
       },
       out: {
-        duration: 15,
+        duration: 150,
         easing: easeInExpo,
-
         startFrame: [
           { x: 0, y: 0 },
           { x: 1, y: 0 },

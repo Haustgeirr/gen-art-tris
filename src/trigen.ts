@@ -89,7 +89,7 @@ function sketch(p5: p5) {
       size,
       triOptions[triIndex].style,
       triOptions[triIndex].dir,
-      600
+      1000
     );
   }
 

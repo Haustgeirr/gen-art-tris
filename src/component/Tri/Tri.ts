@@ -37,10 +37,10 @@ export default class Tri {
   _style: string;
   _dir: string | undefined;
   _colour: string;
-  _initialFrame: number;
   _life: number | undefined;
   _animation: Animation | undefined;
   _rotation: number;
+  _elapsedTime: number;
 
   constructor(
     position: P5.Vector,
@@ -57,8 +57,8 @@ export default class Tri {
     this._style = style;
     this._dir = dir;
     this._colour = colour ?? 'white';
-    this._initialFrame = p5.frameCount;
     this._life = life;
+    this._elapsedTime = 0;
 
     function setRotation() {
       switch (dir) {
@@ -96,7 +96,7 @@ export default class Tri {
     startPoint: Point,
     endPoint: Point,
     duration: number,
-    frame: number,
+    elapsedTime: number,
     easing?: (t: number) => number
   ) {
     const p5 = this._p5;
@@ -104,7 +104,7 @@ export default class Tri {
     const start = p5.createVector(startPoint.x, startPoint.y).mult(this._size);
     const end = p5.createVector(endPoint.x, endPoint.y).mult(this._size);
 
-    let speed = frame / duration;
+    let speed = elapsedTime / duration;
 
     if (easing) {
       speed = easing(speed);
@@ -119,7 +119,7 @@ export default class Tri {
     const { duration, startFrame, endFrame, easing } = animation;
     const p5 = this._p5;
 
-    const frame = p5.frameCount - this._initialFrame;
+    const elapsedTime = Math.min(this._elapsedTime + p5.deltaTime, duration);
 
     p5.beginShape();
 
@@ -128,7 +128,7 @@ export default class Tri {
         point,
         endFrame[index],
         duration,
-        frame,
+        elapsedTime,
         easing
       );
       p5.vertex(currentPoint.x, currentPoint.y);
@@ -136,9 +136,13 @@ export default class Tri {
 
     p5.endShape();
 
-    if (frame >= duration) {
+    if (elapsedTime >= duration) {
       animation.onEnd?.();
+      this._elapsedTime = 0;
+      return;
     }
+
+    this._elapsedTime = elapsedTime;
   }
 
   in() {
@@ -152,7 +156,7 @@ export default class Tri {
   }
 
   startAnimating(animation: Animation, onEndCallback?: () => void) {
-    this._initialFrame = this._p5.frameCount;
+    this._elapsedTime = 0;
 
     this._animation = {
       ...animation,
@@ -207,11 +211,11 @@ export default class Tri {
     }
 
     if (this._life !== undefined) {
-      this._life--;
-    }
+      this._life - p5.deltaTime;
 
-    if (this._life === 0) {
-      this.out();
+      if (this._life <= 0) {
+        this.out();
+      }
     }
 
     if (this._animation) {
