@@ -16,6 +16,18 @@ interface Animation {
   onEnd?: () => void;
 }
 
+interface ShapeConfig {
+  shape: Point[];
+  animations: {
+    in: Animation;
+    out: Animation;
+  };
+}
+
+interface Config {
+  [key: string]: ShapeConfig;
+}
+
 function easeInExpo(x: number): number {
   return x === 0 ? 0 : Math.pow(2, 10 * x - 10);
 }
@@ -24,9 +36,8 @@ function easeOutExpo(x: number): number {
   return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
 }
 
-const config = {
+const config: Config = {
   tri: {
-    duration: 15,
     shape: [
       { x: 0, y: 0 },
       { x: 1, y: 1 },
@@ -36,6 +47,7 @@ const config = {
       in: {
         duration: 15,
         easing: easeOutExpo,
+
         startFrame: [
           { x: 0, y: 0 },
           { x: 1, y: 1 },
@@ -50,6 +62,7 @@ const config = {
       out: {
         duration: 15,
         easing: easeInExpo,
+
         startFrame: [
           { x: 0, y: 0 },
           { x: 1, y: 1 },
@@ -63,6 +76,147 @@ const config = {
       },
     },
   },
+  half: {
+    shape: [
+      { x: 0, y: 0 },
+      { x: 0.5, y: 0.5 },
+      { x: 0, y: 1 },
+    ],
+    animations: {
+      in: {
+        duration: 15,
+        easing: easeOutExpo,
+
+        startFrame: [
+          { x: 0, y: 0 },
+          { x: 0, y: 0.5 },
+          { x: 0, y: 1 },
+        ],
+        endFrame: [
+          { x: 0, y: 0 },
+          { x: 0.5, y: 0.5 },
+          { x: 0, y: 1 },
+        ],
+      },
+      out: {
+        duration: 15,
+        easing: easeInExpo,
+
+        startFrame: [
+          { x: 0, y: 0 },
+          { x: 0.5, y: 0.5 },
+          { x: 0, y: 1 },
+        ],
+        endFrame: [
+          { x: 0, y: 0 },
+          { x: 0, y: 0.5 },
+          { x: 0, y: 1 },
+        ],
+      },
+    },
+  },
+  // .vertex(0, 0)
+  // .vertex(size, 0)
+  // .vertex(size, size)
+  // .vertex(0, size)
+  // .vertex(centre, centre)
+  // .vertex(0, 0)
+  inverted: {
+    shape: [
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+      { x: 1, y: 1 },
+      { x: 0, y: 1 },
+      { x: 0.5, y: 0.5 },
+      { x: 0, y: 0 },
+    ],
+    animations: {
+      in: {
+        duration: 15,
+        easing: easeOutExpo,
+        startFrame: [
+          { x: 0, y: 0.5 },
+          { x: 1, y: 0.5 },
+          { x: 1, y: 0.5 },
+          { x: 0, y: 0.5 },
+          { x: 0.5, y: 0.5 },
+          { x: 0, y: 0.5 },
+        ],
+        endFrame: [
+          { x: 0, y: 0 },
+          { x: 1, y: 0 },
+          { x: 1, y: 1 },
+          { x: 0, y: 1 },
+          { x: 0.5, y: 0.5 },
+          { x: 0, y: 0 },
+        ],
+      },
+      out: {
+        duration: 15,
+        easing: easeInExpo,
+        startFrame: [
+          { x: 0, y: 0 },
+          { x: 1, y: 0 },
+          { x: 1, y: 1 },
+          { x: 0, y: 1 },
+          { x: 0.5, y: 0.5 },
+          { x: 0, y: 0 },
+        ],
+        endFrame: [
+          { x: 0, y: 0.5 },
+          { x: 1, y: 0.5 },
+          { x: 1, y: 0.5 },
+          { x: 0, y: 0.5 },
+          { x: 0.5, y: 0.5 },
+          { x: 0, y: 0.5 },
+        ],
+      },
+    },
+  },
+  square: {
+    shape: [
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+      { x: 1, y: 1 },
+      { x: 0, y: 1 },
+    ],
+    animations: {
+      in: {
+        duration: 15,
+        easing: easeOutExpo,
+
+        startFrame: [
+          { x: 0.5, y: 0 },
+          { x: 0.5, y: 0 },
+          { x: 0.5, y: 1 },
+          { x: 0.5, y: 1 },
+        ],
+        endFrame: [
+          { x: 0, y: 0 },
+          { x: 1, y: 0 },
+          { x: 1, y: 1 },
+          { x: 0, y: 1 },
+        ],
+      },
+      out: {
+        duration: 15,
+        easing: easeInExpo,
+
+        startFrame: [
+          { x: 0, y: 0 },
+          { x: 1, y: 0 },
+          { x: 1, y: 1 },
+          { x: 0, y: 1 },
+        ],
+        endFrame: [
+          { x: 0.5, y: 0 },
+          { x: 0.5, y: 0 },
+          { x: 0.5, y: 1 },
+          { x: 0.5, y: 1 },
+        ],
+      },
+    },
+  },
 };
 
 export default class Tri {
@@ -72,9 +226,10 @@ export default class Tri {
   _style: string;
   _dir: string | undefined;
   _colour: string;
-  startFrame: number;
+  _initialFrame: number;
   _life: number | undefined;
   _animation: Animation | undefined;
+  _rotation: number;
 
   constructor(
     position: P5.Vector,
@@ -91,94 +246,27 @@ export default class Tri {
     this._style = style;
     this._dir = dir;
     this._colour = colour ?? 'white';
-    this.startFrame = p5.frameCount;
+    this._initialFrame = p5.frameCount;
     this._life = life;
 
-    this.in();
-  }
-
-  drawTri() {
-    const p5 = this._p5;
-    const size = this._size;
-    const centre = size / 2;
-
-    switch (this._style) {
-      case 'square':
-        return p5.square(0, 0, this._size);
-      case 'tri':
-        switch (this._dir) {
-          case 'left':
-            // return p5.triangle(0, 0, size, size, 0, size);
-            return p5
-              .beginShape()
-              .vertex(0, 0)
-              .vertex(size, size)
-              .vertex(0, size)
-              .endShape();
-          case 'up':
-            return p5.triangle(0, 0, size, 0, 0, size);
-          case 'right':
-            return p5.triangle(0, 0, size, 0, size, size);
-          case 'down':
-            return p5.triangle(size, 0, size, size, 0, size);
-        }
-      case 'half':
-        switch (this._dir) {
-          case 'left':
-            return p5.triangle(0, 0, centre, centre, 0, size);
-          case 'up':
-            return p5.triangle(0, 0, size, 0, centre, centre);
-          case 'right':
-            return p5.triangle(size, 0, size, size, centre, centre);
-          case 'down':
-            return p5.triangle(size, size, 0, size, centre, centre);
-        }
-      case 'inverted':
-        switch (this._dir) {
-          case 'left':
-            return p5
-              .beginShape()
-              .vertex(0, 0)
-              .vertex(size, 0)
-              .vertex(size, size)
-              .vertex(0, size)
-              .vertex(centre, centre)
-              .vertex(0, 0)
-              .endShape();
-          case 'up':
-            return p5
-              .beginShape()
-              .vertex(0, 0)
-              .vertex(centre, centre)
-              .vertex(size, 0)
-              .vertex(size, size)
-              .vertex(0, size)
-              .vertex(0, 0)
-              .endShape();
-          case 'right':
-            return p5
-              .beginShape()
-              .vertex(0, 0)
-              .vertex(size, 0)
-              .vertex(centre, centre)
-              .vertex(size, size)
-              .vertex(0, size)
-              .vertex(0, 0)
-              .endShape();
-          case 'down':
-            return p5
-              .beginShape()
-              .vertex(0, 0)
-              .vertex(size, 0)
-              .vertex(size, size)
-              .vertex(centre, centre)
-              .vertex(0, size)
-              .vertex(0, 0)
-              .endShape();
-        }
-      default:
-        return p5.triangle(0, 0, size, 0, size, size);
+    function setRotation() {
+      switch (dir) {
+        case 'left':
+          return 0;
+        case 'up':
+          return p5.HALF_PI;
+        case 'right':
+          return p5.PI;
+        case 'down':
+          return p5.HALF_PI * 3;
+        default:
+          return 0;
+      }
     }
+
+    this._rotation = setRotation();
+
+    this.in();
   }
 
   drawShape(shape: Point[]) {
@@ -219,7 +307,8 @@ export default class Tri {
   animate(animation: Animation) {
     const { duration, startFrame, endFrame, easing } = animation;
     const p5 = this._p5;
-    const frame = p5.frameCount - this.startFrame;
+
+    const frame = p5.frameCount - this._initialFrame;
 
     p5.beginShape();
 
@@ -242,17 +331,17 @@ export default class Tri {
   }
 
   in() {
-    this.startAnimating(config.tri.animations.in);
+    this.startAnimating(this.getAnimation().in);
   }
 
   out() {
-    this.startAnimating(config.tri.animations.out, () => {
+    this.startAnimating(this.getAnimation().out, () => {
       this._life = 0;
     });
   }
 
   startAnimating(animation: Animation, onEndCallback?: () => void) {
-    this.startFrame = this._p5.frameCount;
+    this._initialFrame = this._p5.frameCount;
 
     this._animation = {
       ...animation,
@@ -261,6 +350,34 @@ export default class Tri {
         onEndCallback?.();
       },
     };
+  }
+
+  getAnimation() {
+    return config[this._style].animations;
+  }
+
+  getShape() {
+    return config[this._style].shape;
+  }
+
+  rotate() {
+    const p5 = this._p5;
+    p5.rotate(this._rotation);
+
+    switch (this._dir) {
+      case 'left':
+        p5.translate(0, 0);
+        break;
+      case 'up':
+        p5.translate(0, -this._size);
+        break;
+      case 'right':
+        p5.translate(-this._size, -this._size);
+        break;
+      case 'down':
+        p5.translate(-this._size, 0);
+        break;
+    }
   }
 
   draw() {
@@ -274,6 +391,10 @@ export default class Tri {
     p5.translate(this._position);
     p5.fill(this._colour);
 
+    if (this._rotation !== 0) {
+      this.rotate();
+    }
+
     if (this._life !== undefined) {
       this._life--;
     }
@@ -285,7 +406,7 @@ export default class Tri {
     if (this._animation) {
       this.animate(this._animation);
     } else {
-      this.drawShape(config.tri.shape);
+      this.drawShape(this.getShape());
     }
 
     p5.pop();

@@ -14,55 +14,55 @@ type TriType = {
 
 const triOptions: TriType[] = [
   {
+    style: 'tri',
+    dir: 'left',
+  },
+  {
+    style: 'tri',
+    dir: 'up',
+  },
+  {
+    style: 'tri',
+    dir: 'right',
+  },
+  {
+    style: 'tri',
+    dir: 'down',
+  },
+  {
+    style: 'half',
+    dir: 'left',
+  },
+  {
+    style: 'half',
+    dir: 'up',
+  },
+  {
+    style: 'half',
+    dir: 'right',
+  },
+  {
+    style: 'half',
+    dir: 'down',
+  },
+  {
+    style: 'inverted',
+    dir: 'left',
+  },
+  {
+    style: 'inverted',
+    dir: 'up',
+  },
+  {
+    style: 'inverted',
+    dir: 'right',
+  },
+  {
+    style: 'inverted',
+    dir: 'down',
+  },
+  {
     style: 'square',
-  },
-  {
-    style: 'tri',
-    dir: 'left',
-  },
-  {
-    style: 'tri',
-    dir: 'up',
-  },
-  {
-    style: 'tri',
-    dir: 'right',
-  },
-  {
-    style: 'tri',
-    dir: 'down',
-  },
-  {
-    style: 'half',
-    dir: 'left',
-  },
-  {
-    style: 'half',
-    dir: 'up',
-  },
-  {
-    style: 'half',
-    dir: 'right',
-  },
-  {
-    style: 'half',
-    dir: 'down',
-  },
-  {
-    style: 'inverted',
-    dir: 'left',
-  },
-  {
-    style: 'inverted',
-    dir: 'up',
-  },
-  {
-    style: 'inverted',
-    dir: 'right',
-  },
-  {
-    style: 'inverted',
-    dir: 'down',
   },
 ];
 
@@ -89,7 +89,7 @@ function sketch(p5: p5) {
       size,
       triOptions[triIndex].style,
       triOptions[triIndex].dir,
-      60
+      45
     );
   }
 
@@ -138,6 +138,15 @@ function sketch(p5: p5) {
           p5.rect(x * gridSize, y * gridSize, gridSize, gridSize);
         }
       }
+
+      p5.noStroke();
+      p5.fill(p5.color(30, 46, 84));
+      p5.rect(
+        Math.floor(cellsX / 2) * gridSize,
+        Math.floor(cellsY / 2) * gridSize,
+        gridSize,
+        gridSize
+      );
     }
 
     //if debug draw a single tri in the centre
