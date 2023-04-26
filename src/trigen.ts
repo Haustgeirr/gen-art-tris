@@ -2,10 +2,27 @@ import p5 from 'p5';
 
 import Tri from './component/Tri';
 
+// make a 'flip' method that that calls the 'out' method on the current tri and then calls the 'in' method on the new tri
+// fix the duplicate tri in cell bug
+// maybe try gpt4 on this
+// start working on the input pattern
+// this might want too be an array of objects that define what each cell should be
+// maybe make a grid class that handles the grid and the cells
+// maybe make a cell class that handles the cell and the tris
+
+interface Cell {
+  option: number;
+  static: boolean;
+}
+
+interface Grid {
+  cells: Cell[];
+}
+
 const gridSize = 32;
 const cellsX = Math.floor(window.innerWidth / gridSize);
 const cellsY = Math.floor(window.innerHeight / gridSize);
-const tileChance = 0.85;
+const tileChance = 1;
 
 type TriType = {
   style: string;
@@ -110,8 +127,8 @@ function sketch(p5: p5) {
       p5.createDiv('').addClass('justify-center flex h-screen w-screen items-center bg-slate-900 m-0 p-0')
     );
 
-    frameTris = drawTris(generateCellGrid());
-    // frameTris = drawTris(new Array(cellsX * cellsY).fill(null));
+    // frameTris = drawTris(generateCellGrid());
+    frameTris = drawTris(new Array(cellsX * cellsY).fill(null));
   };
 
   function drawTriInCell(cell: number) {
