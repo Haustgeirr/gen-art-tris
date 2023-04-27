@@ -10,6 +10,21 @@ import Tri from './component/Tri';
 // maybe make a grid class that handles the grid and the cells
 // maybe make a cell class that handles the cell and the tris
 
+const gridConfig = [
+  [null, null, 7, null],
+  [null, 3, 12, 4],
+  [3, 12, 1, null],
+  [2, 12, 0, null],
+  [null, 2, 12, 0],
+  [null, 3, 12, 1],
+  [3, 12, 1, null],
+  [2, 12, 0, null],
+  [null, 2, 12, 0],
+  [null, 3, 12, 1],
+  [6, 12, 1, null],
+  [null, 5, null, null],
+];
+
 interface Cell {
   option: number;
   static: boolean;
@@ -100,7 +115,11 @@ function sketch(p5: p5) {
   let tri: Tri | null = null;
   let frameTris: (Tri | null)[] | null = null;
 
-  function drawTri(position: p5.Vector, size: number, triIndex: number) {
+  function drawTri(position: p5.Vector, size: number, triIndex: number | null) {
+    if (triIndex === null) {
+      return null;
+    }
+
     return new Tri(position, size, triOptions[triIndex].style, triOptions[triIndex].dir, 1000);
   }
 
@@ -127,8 +146,14 @@ function sketch(p5: p5) {
       p5.createDiv('').addClass('justify-center flex h-screen w-screen items-center bg-slate-900 m-0 p-0')
     );
 
+    frameTris = [];
     // frameTris = drawTris(generateCellGrid());
-    frameTris = drawTris(new Array(cellsX * cellsY).fill(null));
+    // frameTris = drawTris(new Array(cellsX * cellsY).fill(null));
+    gridConfig.forEach((row, y) => {
+      row.forEach((tri, x) => {
+        frameTris.push(drawTri(p5.createVector(x * gridSize, y * gridSize), gridSize, tri));
+      });
+    });
   };
 
   function drawTriInCell(cell: number) {
@@ -157,6 +182,8 @@ function sketch(p5: p5) {
   }
 
   p5.draw = () => {
+    p5.background(p5.color(15, 23, 42));
+
     const drawGrid = true;
     const debug = false;
     p5.background(p5.color(15, 23, 42));
@@ -176,47 +203,47 @@ function sketch(p5: p5) {
       p5.rect(Math.floor(cellsX / 2) * gridSize, Math.floor(cellsY / 2) * gridSize, gridSize, gridSize);
     }
 
-    //if debug draw a single tri in the centre
-    if (debug) {
-      const centreCell = Math.floor(cellsX / 2) + Math.floor(cellsY / 2) * cellsX;
-      if (!frameTris[centreCell]) {
-        const positionX = centreCell % cellsX;
-        const positionY = Math.floor(centreCell / cellsX);
+    // //if debug draw a single tri in the centre
+    // if (debug) {
+    //   const centreCell = Math.floor(cellsX / 2) + Math.floor(cellsY / 2) * cellsX;
+    //   if (!frameTris[centreCell]) {
+    //     const positionX = centreCell % cellsX;
+    //     const positionY = Math.floor(centreCell / cellsX);
 
-        tri = drawTri(p5.createVector(positionX * gridSize, positionY * gridSize), gridSize, 0);
-      }
+    //     tri = drawTri(p5.createVector(positionX * gridSize, positionY * gridSize), gridSize, 0);
+    //   }
 
-      if (frameTris[centreCell]) {
-        frameTris[centreCell].draw();
-      }
+    //   if (frameTris[centreCell]) {
+    //     frameTris[centreCell].draw();
+    //   }
 
-      if (p5.frameCount % 30 === 0) {
-        drawTriInCell(centreCell);
-      }
+    //   if (p5.frameCount % 30 === 0) {
+    //     drawTriInCell(centreCell);
+    //   }
 
-      return;
-    }
+    //   return;
+    // }
 
     if (!frameTris) {
       return;
     }
 
-    //choose a random number of frames
-    const randomFrames = Math.floor(Math.random() * 2);
+    // //choose a random number of frames
+    // const randomFrames = Math.floor(Math.random() * 2);
 
-    if (p5.frameCount % randomFrames === 0) {
-      //choose a random number of cells
-      const randomCellsCount = 1;
+    // if (p5.frameCount % randomFrames === 0) {
+    //   //choose a random number of cells
+    //   const randomCellsCount = 1;
 
-      // create an array with randomCellsCount elements
-      const randomCells = new Array(randomCellsCount).fill(0).map(() => {
-        // for each element, choose a random cell
-        const randomCell = Math.floor(Math.random() * frameTris.length);
-        return randomCell;
-      });
+    //   // create an array with randomCellsCount elements
+    //   const randomCells = new Array(randomCellsCount).fill(0).map(() => {
+    //     // for each element, choose a random cell
+    //     const randomCell = Math.floor(Math.random() * frameTris.length);
+    //     return randomCell;
+    //   });
 
-      randomCells.forEach((cell) => drawTriInCell(cell));
-    }
+    //   randomCells.forEach((cell) => drawTriInCell(cell));
+    // }
 
     frameTris.forEach((tri) => {
       if (tri) {
