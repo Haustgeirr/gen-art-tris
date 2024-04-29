@@ -12,18 +12,16 @@ interface Point {
 class PoissonDiscSampling {
   windowWidth: number;
   windowHeight: number;
+  cellSize: number;
   gridWidth: number;
   gridHeight: number;
-  cellSize: number;
-  radius: number;
 
-  constructor(width: number, height: number, cellSize: number, radius: number) {
+  constructor(width: number, height: number, cellSize: number) {
     this.windowWidth = width;
     this.windowHeight = height;
-    this.gridWidth = Math.ceil(width / cellSize);
-    this.gridHeight = Math.ceil(height / cellSize);
     this.cellSize = cellSize;
-    this.radius = radius;
+    this.gridWidth = Math.floor(window.innerWidth / cellSize) + 1;
+    this.gridHeight = Math.floor(window.innerHeight / cellSize) + 1;
   }
 
   generate(): Point[] {
@@ -32,10 +30,9 @@ class PoissonDiscSampling {
     const grid: Point[] = [];
     let finished = false;
     const samplesBeforeRejection = 100;
+    const start = Date.now();
 
     candidatePoints.push({ x: this.windowWidth / 2, y: this.windowHeight / 2 });
-
-    const start = Date.now();
 
     while (!finished && Date.now() - start < 15) {
       const index = (Math.random() * (candidatePoints.length - 1)) | 0;
@@ -43,7 +40,7 @@ class PoissonDiscSampling {
 
       for (let k = 0; k < samplesBeforeRejection; k++) {
         const a = Math.random() * Math.PI * 2;
-        const r = Math.random() * 2 * this.radius + this.radius;
+        const r = Math.random() * 2 * this.cellSize + this.cellSize;
 
         const newPoint = {
           x: candidatePoints[index].x + r * Math.cos(a),
@@ -63,10 +60,14 @@ class PoissonDiscSampling {
       }
 
       if (!newPointIsValid) {
+        console.log('💢 remove point');
         candidatePoints.splice(index, 1);
       }
 
-      if (candidatePoints.length <= 0) finished = true;
+      if (candidatePoints.length <= 0) {
+        console.log('💢 finished');
+        finished = true;
+      }
     }
 
     return points;
@@ -83,17 +84,10 @@ class PoissonDiscSampling {
     const searchEndY = Math.min(gridY + 2 + 1, this.gridHeight);
 
     for (let y = searchStartY; y < searchEndY; y++) {
-      const gridRow = y * this.gridWidth;
       for (let x = searchStartX; x < searchEndX; x++) {
-        const gridIndex = gridRow + x;
-        const gridCell = grid[gridIndex];
+        const gridCell = grid[y * this.gridWidth + x];
 
-        if (gridCell) {
-          console.log(newPoint, gridCell, this.sqrDistance(newPoint, gridCell), this.radius * this.radius);
-        }
-
-        if (gridCell && this.sqrDistance(newPoint, gridCell) <= this.radius * this.radius) {
-          console.log('reject point');
+        if (gridCell && this.sqrDistance(newPoint, gridCell) <= this.cellSize * this.cellSize) {
           return false;
         }
       }
@@ -108,9 +102,8 @@ class PoissonDiscSampling {
 }
 
 function scene(p5: p5) {
-  const pds = new PoissonDiscSampling(window.innerWidth, window.innerHeight, 32, 32);
+  const pds = new PoissonDiscSampling(window.innerWidth, window.innerHeight, 32);
   const points = pds.generate();
-  console.log('🚀 ~ scene ~ points:', points);
 
   p5.setup = () => {
     p5.frameRate(60);
@@ -119,22 +112,33 @@ function scene(p5: p5) {
     );
 
     p5.background(p5.color(0, 0, 0));
+    p5.stroke(p5.color(32, 32, 32));
+    p5.strokeWeight(1);
+
+    for (let x = 0; x < cellsX; x++) {
+      for (let y = 0; y < cellsY; y++) {
+        p5.noFill();
+        // p5.circle(x * gridSize, y * gridSize, 4);
+        p5.rect(x * gridSize, y * gridSize, gridSize, gridSize);
+        p5.text(`${y * cellsX + x}`, x * gridSize + 4, y * gridSize + 12);
+      }
+    }
   };
 
   p5.draw = () => {
+    p5.fill(p5.color(255, 255, 255));
     p5.stroke(p5.color(255, 255, 255));
-    p5.strokeWeight(1);
 
-    points.forEach((point) => {
-      p5.circle(point.x, point.y, 4);
-    });
-    // for (let x = 0; x < cellsX; x++) {
-    //   for (let y = 0; y < cellsY; y++) {
-    //     // p5.noFill();
-    //     p5.circle(x * gridSize, y * gridSize, 4);
-    //     // p5.rect(x * gridSize, y * gridSize, gridSize, gridSize);
-    //   }
-    // }
+    // points.forEach((point) => {
+    //   p5.circle(point.x, point.y, 4);
+    // });
+
+    const drawPointIndex = (p5.frameCount / 5) | 0;
+
+    if (p5.frameCount % 5 === 0) {
+      const p = points[drawPointIndex];
+      p5.circle(p.x, p.y, 4);
+    }
   };
 }
 
