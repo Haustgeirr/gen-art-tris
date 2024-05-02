@@ -1,4 +1,4 @@
-import p5 from 'p5';
+import p5, { POINTS } from 'p5';
 
 const gridSize = 32;
 const cellsX = Math.floor(window.innerWidth / gridSize) + 1;
@@ -27,9 +27,9 @@ class PoissonDiscSampling {
   generate(): Point[] {
     const candidatePoints: Point[] = [];
     const points: Point[] = [];
-    const grid: Point[] = [];
+    const grid: Point[][] = [];
     let finished = false;
-    const samplesBeforeRejection = 100;
+    const samplesBeforeRejection = 10000;
     const start = Date.now();
 
     candidatePoints.push({ x: this.windowWidth / 2, y: this.windowHeight / 2 });
@@ -48,11 +48,21 @@ class PoissonDiscSampling {
         };
 
         if (this.isValidPoint(newPoint, grid)) {
+          const { isValid, point } = this.isValidPointSlow(newPoint, points);
+          if (!isValid && point) {
+            points.push(newPoint);
+            return points;
+          }
+
           points.push(newPoint);
           candidatePoints.push(newPoint);
-          const gridIndex = this.gridWidth * ((newPoint.y / this.cellSize) | 0) + ((newPoint.x / this.cellSize) | 0);
+          const gridIndex = this.getGridIndex(newPoint);
 
-          grid[gridIndex] = newPoint;
+          if (!grid[gridIndex]) {
+            grid[gridIndex] = [];
+          }
+
+          grid[gridIndex].push(newPoint);
           newPointIsValid = true;
 
           break;
@@ -60,12 +70,10 @@ class PoissonDiscSampling {
       }
 
       if (!newPointIsValid) {
-        console.log('💢 remove point');
         candidatePoints.splice(index, 1);
       }
 
       if (candidatePoints.length <= 0) {
-        console.log('💢 finished');
         finished = true;
       }
     }
@@ -75,7 +83,7 @@ class PoissonDiscSampling {
 
   // Fast Poisson Disk Sampling in Arbitrary Dimensions by Robert Bridson
   // https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf
-  private isValidPoint(newPoint: Point, grid: Point[]) {
+  private isValidPoint(newPoint: Point, grid: Point[][]) {
     const gridX = (newPoint.x / this.cellSize) | 0;
     const gridY = (newPoint.y / this.cellSize) | 0;
     const searchStartX = Math.max(0, gridX - 2);
@@ -83,12 +91,18 @@ class PoissonDiscSampling {
     const searchEndX = Math.min(gridX + 2 + 1, this.gridWidth);
     const searchEndY = Math.min(gridY + 2 + 1, this.gridHeight);
 
+    if (newPoint.x < 0 || newPoint.x >= this.windowWidth || newPoint.y < 0 || newPoint.y >= this.windowHeight) {
+      return false;
+    }
+
     for (let y = searchStartY; y < searchEndY; y++) {
       for (let x = searchStartX; x < searchEndX; x++) {
         const gridCell = grid[y * this.gridWidth + x];
 
-        if (gridCell && this.sqrDistance(newPoint, gridCell) <= this.cellSize * this.cellSize) {
-          return false;
+        for (let i = 0; i < gridCell?.length; i++) {
+          if (gridCell[i] && this.sqrDistance(newPoint, gridCell[i]) <= this.cellSize * this.cellSize * 1.414) {
+            return false;
+          }
         }
       }
     }
@@ -96,8 +110,35 @@ class PoissonDiscSampling {
     return true;
   }
 
+  private isValidPointSlow(
+    newPoint: Point,
+    points: Point[]
+  ): {
+    isValid: boolean;
+    newPoint?: Point;
+    point?: Point;
+  } {
+    for (let i = 0; i < points.length; i++) {
+      if (this.sqrDistance(newPoint, points[i]) <= this.cellSize * this.cellSize) {
+        return {
+          isValid: false,
+          newPoint,
+          point: points[i],
+        };
+      }
+    }
+
+    return {
+      isValid: true,
+    };
+  }
+
   private sqrDistance(pointA: Point, pointB: Point) {
     return Math.pow(pointA.x - pointB.x, 2) + Math.pow(pointA.y - pointB.y, 2);
+  }
+
+  private getGridIndex(point: Point) {
+    return this.gridWidth * ((point.y / this.cellSize) | 0) + ((point.x / this.cellSize) | 0);
   }
 }
 
@@ -118,7 +159,6 @@ function scene(p5: p5) {
     for (let x = 0; x < cellsX; x++) {
       for (let y = 0; y < cellsY; y++) {
         p5.noFill();
-        // p5.circle(x * gridSize, y * gridSize, 4);
         p5.rect(x * gridSize, y * gridSize, gridSize, gridSize);
         p5.text(`${y * cellsX + x}`, x * gridSize + 4, y * gridSize + 12);
       }
@@ -129,15 +169,17 @@ function scene(p5: p5) {
     p5.fill(p5.color(255, 255, 255));
     p5.stroke(p5.color(255, 255, 255));
 
-    // points.forEach((point) => {
-    //   p5.circle(point.x, point.y, 4);
-    // });
+    points.forEach((point) => {
+      p5.circle(point.x, point.y, 4);
+    });
 
     const drawPointIndex = (p5.frameCount / 5) | 0;
 
-    if (p5.frameCount % 5 === 0) {
-      const p = points[drawPointIndex];
-      p5.circle(p.x, p.y, 4);
+    if (drawPointIndex >= points.length - 1) {
+      p5.fill(p5.color(255, 0, 0));
+      p5.stroke(p5.color(255, 0, 0));
+
+      p5.noLoop();
     }
   };
 }
