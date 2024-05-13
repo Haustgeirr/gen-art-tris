@@ -29,7 +29,7 @@ class PoissonDiscSampling {
     const points: Point[] = [];
     const grid: Point[][] = [];
     let finished = false;
-    const samplesBeforeRejection = 10000;
+    const samplesBeforeRejection = 10;
     const start = Date.now();
 
     candidatePoints.push({ x: this.windowWidth / 2, y: this.windowHeight / 2 });
