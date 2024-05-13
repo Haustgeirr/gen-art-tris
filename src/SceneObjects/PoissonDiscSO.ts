@@ -22,4 +22,8 @@ export class PoissonDiscSO extends SceneObject {
       p5.circle(point.x, point.y, 4);
     });
   }
+
+  getPoints(): Point[] {
+    return this.points;
+  }
 }
