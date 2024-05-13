@@ -1,5 +1,5 @@
 import { Config } from './Tri';
-import { easeInExpo, easeOutExpo } from '@utils/Easing';
+import { easeInExpo, easeOutExpo } from '@/Utils/Easing';
 
 const config: Config = {
   tri: {

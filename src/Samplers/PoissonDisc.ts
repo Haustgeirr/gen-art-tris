@@ -1,15 +1,7 @@
-import p5, { POINTS } from 'p5';
+import { Point } from '@/Utils/Types';
+import { INoiseGenerator } from '@/Interfaces/INoiseGenerator';
 
-const gridSize = 32;
-const cellsX = Math.floor(window.innerWidth / gridSize) + 1;
-const cellsY = Math.floor(window.innerHeight / gridSize) + 1;
-
-interface Point {
-  x: number;
-  y: number;
-}
-
-class PoissonDiscSampling {
+export class PoissonDisc implements INoiseGenerator {
   windowWidth: number;
   windowHeight: number;
   cellSize: number;
@@ -48,12 +40,6 @@ class PoissonDiscSampling {
         };
 
         if (this.isValidPoint(newPoint, grid)) {
-          const { isValid, point } = this.isValidPointSlow(newPoint, points);
-          if (!isValid && point) {
-            points.push(newPoint);
-            return points;
-          }
-
           points.push(newPoint);
           candidatePoints.push(newPoint);
           const gridIndex = this.getGridIndex(newPoint);
@@ -110,29 +96,6 @@ class PoissonDiscSampling {
     return true;
   }
 
-  private isValidPointSlow(
-    newPoint: Point,
-    points: Point[]
-  ): {
-    isValid: boolean;
-    newPoint?: Point;
-    point?: Point;
-  } {
-    for (let i = 0; i < points.length; i++) {
-      if (this.sqrDistance(newPoint, points[i]) <= this.cellSize * this.cellSize) {
-        return {
-          isValid: false,
-          newPoint,
-          point: points[i],
-        };
-      }
-    }
-
-    return {
-      isValid: true,
-    };
-  }
-
   private sqrDistance(pointA: Point, pointB: Point) {
     return Math.pow(pointA.x - pointB.x, 2) + Math.pow(pointA.y - pointB.y, 2);
   }
@@ -141,48 +104,3 @@ class PoissonDiscSampling {
     return this.gridWidth * ((point.y / this.cellSize) | 0) + ((point.x / this.cellSize) | 0);
   }
 }
-
-function scene(p5: p5) {
-  const pds = new PoissonDiscSampling(window.innerWidth, window.innerHeight, 32);
-  const points = pds.generate();
-
-  p5.setup = () => {
-    p5.frameRate(60);
-    p5.createCanvas(cellsX * gridSize, cellsY * gridSize).parent(
-      p5.createDiv('').addClass('justify-center flex h-screen w-screen items-center bg-slate-900 m-0 p-0')
-    );
-
-    p5.background(p5.color(0, 0, 0));
-    p5.stroke(p5.color(32, 32, 32));
-    p5.strokeWeight(1);
-
-    for (let x = 0; x < cellsX; x++) {
-      for (let y = 0; y < cellsY; y++) {
-        p5.noFill();
-        p5.rect(x * gridSize, y * gridSize, gridSize, gridSize);
-        p5.text(`${y * cellsX + x}`, x * gridSize + 4, y * gridSize + 12);
-      }
-    }
-  };
-
-  p5.draw = () => {
-    p5.fill(p5.color(255, 255, 255));
-    p5.stroke(p5.color(255, 255, 255));
-
-    points.forEach((point) => {
-      p5.circle(point.x, point.y, 4);
-    });
-
-    const drawPointIndex = (p5.frameCount / 5) | 0;
-
-    if (drawPointIndex >= points.length - 1) {
-      p5.fill(p5.color(255, 0, 0));
-      p5.stroke(p5.color(255, 0, 0));
-
-      p5.noLoop();
-    }
-  };
-}
-
-const P5 = new p5(scene);
-export default P5;
