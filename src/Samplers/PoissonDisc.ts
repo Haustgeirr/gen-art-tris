@@ -1,6 +1,10 @@
 import { Point } from '@/Utils/Types';
 import { INoiseGenerator } from '@/Interfaces/INoiseGenerator';
 
+const MAX_DURATION_MS = 15;
+const SAMPLES_BEFORE_REJECTION = 10;
+const MAX_POINTS = 5;
+
 export class PoissonDisc implements INoiseGenerator {
   windowWidth: number;
   windowHeight: number;
@@ -21,16 +25,15 @@ export class PoissonDisc implements INoiseGenerator {
     const points: Point[] = [];
     const grid: Point[][] = [];
     let finished = false;
-    const samplesBeforeRejection = 10;
     const start = Date.now();
 
     candidatePoints.push({ x: this.windowWidth / 2, y: this.windowHeight / 2 });
 
-    while (!finished && Date.now() - start < 15) {
+    while (!finished && Date.now() - start < MAX_DURATION_MS) {
       const index = (Math.random() * (candidatePoints.length - 1)) | 0;
       let newPointIsValid = false;
 
-      for (let k = 0; k < samplesBeforeRejection; k++) {
+      for (let k = 0; k < SAMPLES_BEFORE_REJECTION; k++) {
         const a = Math.random() * Math.PI * 2;
         const r = Math.random() * 2 * this.cellSize + this.cellSize;
 
@@ -59,7 +62,7 @@ export class PoissonDisc implements INoiseGenerator {
         candidatePoints.splice(index, 1);
       }
 
-      if (candidatePoints.length <= 0) {
+      if (candidatePoints.length <= 0 || (MAX_POINTS > 0 && points.length >= MAX_POINTS)) {
         finished = true;
       }
     }
