@@ -40,6 +40,54 @@ export class DelaunayTriangulation {
     return this.triangulation;
   }
 
+  private constructTriangleFromIncircle(incenter: Point, radius: number): Triangulation {
+    function getTangentPoint(center: Point, radius: number, angle: number): Point {
+      return {
+        x: center.x + radius * Math.cos(angle),
+        y: center.y - radius * Math.sin(angle),
+      };
+    }
+
+    function intersectionPoint(line1: [number, number, number], line2: [number, number, number]): Point {
+      const [a1, b1, c1] = line1;
+      const [a2, b2, c2] = line2;
+      const determinant = a1 * b2 - a2 * b1;
+
+      if (determinant === 0) throw new Error('Lines do not intersect');
+
+      const x = -(b2 * c1 - b1 * c2) / determinant;
+      const y = -(a1 * c2 - a2 * c1) / determinant;
+
+      return { x, y };
+    }
+
+    const angleA = (3 * Math.PI) / 2;
+    const angleB = Math.PI / 6;
+    const angleC = (5 * Math.PI) / 6;
+
+    const tangentPointA = getTangentPoint(incenter, radius, angleA);
+    const tangentPointB = getTangentPoint(incenter, radius, angleB);
+    const tangentPointC = getTangentPoint(incenter, radius, angleC);
+
+    const tangentGradientA = (tangentPointA.y - incenter.y) / (tangentPointA.x - incenter.x);
+    const tangentGradientB = (tangentPointB.y - incenter.y) / (tangentPointB.x - incenter.x);
+    const tangentGradientC = (tangentPointC.y - incenter.y) / (tangentPointC.x - incenter.x);
+
+    const tangentNormalA = -1 / tangentGradientA;
+    const tangentNormalB = -1 / tangentGradientB;
+    const tangentNormalC = -1 / tangentGradientC;
+
+    const lineA: [number, number, number] = [tangentNormalA, -1, tangentPointA.y - tangentNormalA * tangentPointA.x];
+    const lineB: [number, number, number] = [tangentNormalB, -1, tangentPointB.y - tangentNormalB * tangentPointB.x];
+    const lineC: [number, number, number] = [tangentNormalC, -1, tangentPointC.y - tangentNormalC * tangentPointC.x];
+
+    const vertexA = intersectionPoint(lineB, lineC);
+    const vertexB = intersectionPoint(lineA, lineC);
+    const vertexC = intersectionPoint(lineA, lineB);
+
+    return [vertexA, vertexB, vertexC];
+  }
+
   private makeSuperTriangle(): Triangulation {
     const minX = Math.min(...this.points.map((point) => point.x));
     const minY = Math.min(...this.points.map((point) => point.y));
@@ -52,10 +100,6 @@ export class DelaunayTriangulation {
     const midx = (minX + maxX) / 2;
     const midy = (minY + maxY) / 2;
 
-    const p1 = { x: midx - 20 * deltaMax, y: midy - deltaMax };
-    const p2 = { x: midx, y: midy + 20 * deltaMax };
-    const p3 = { x: midx + 20 * deltaMax, y: midy - deltaMax };
-
-    return [p1, p2, p3];
+    return this.constructTriangleFromIncircle({ x: midx, y: midy }, deltaMax);
   }
 }

@@ -15,10 +15,10 @@ export class DelaunayTriangulationSO extends SceneObject {
 
   render(p5: p5): void {
     p5.noFill();
-    p5.stroke(p5.color(255, 0, 0));
+    p5.stroke(p5.color(125, 125, 125));
 
-    this.triangulation.forEach((triangle) => {
-      p5.triangle(triangle[0].x, triangle[0].y, triangle[1].x, triangle[1].y, triangle[2].x, triangle[2].y);
+    this.triangulation.forEach(([vertexA, vertexB, vertexC]) => {
+      p5.triangle(vertexA.x, vertexA.y, vertexB.x, vertexB.y, vertexC.x, vertexC.y);
     });
   }
 }
