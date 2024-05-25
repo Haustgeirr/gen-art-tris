@@ -1,11 +1,12 @@
 import p5 from 'p5';
 
 import { SceneObject } from './SceneObject';
-import { Point } from '@/Utils/Types';
-import { Triangulation, DelaunayTriangulation } from '@/Samplers/DelaunayTriangulation';
+import { Point } from '@/Objects/Point';
+import { Triangle } from '@/Objects/Triangle';
+import { DelaunayTriangulation } from '@/Samplers/DelaunayTriangulation';
 
 export class DelaunayTriangulationSO extends SceneObject {
-  private triangulation: Triangulation[] = [];
+  private triangulation: Triangle[] = [];
 
   // #355d68
   // #6aaf9d
@@ -39,7 +40,9 @@ export class DelaunayTriangulationSO extends SceneObject {
     p5.stroke(p5.color(125, 125, 125));
     p5.strokeWeight(1);
 
-    this.triangulation.forEach(([vertexA, vertexB, vertexC], index) => {
+    this.triangulation.forEach((triangle, index) => {
+      const [vertexA, vertexB, vertexC] = triangle.getVertices();
+
       p5.stroke(p5.color(...this.colourArray[index % this.colourArray.length]));
       p5.triangle(vertexA.x, vertexA.y, vertexB.x, vertexB.y, vertexC.x, vertexC.y);
     });
