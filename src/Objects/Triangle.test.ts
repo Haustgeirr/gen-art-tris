@@ -70,15 +70,17 @@ describe('Triangle', () => {
     expect(triangle.vertexC.equals(expectedVertexC)).toBe(true);
   });
 
-  it('should throw an error when constructing a triangle from an incircle with a negative radius', () => {
-    expect(() => Triangle.constructFromIncircle(new Point(2, 1.5), -2.5)).toThrow(
-      'Error constructing triangle: incircle radius must be positive.'
-    );
+  it('should check if edges are shared between triangles', () => {
+    const triangleA = new Triangle(new Point(0, 0), new Point(4, 0), new Point(0, 3));
+    const triangleB = new Triangle(new Point(4, 0), new Point(0, 3), new Point(4, 3));
+
+    expect(triangleA.sharesEdge(triangleB)).toBe(true);
   });
 
-  it('should throw an error when constructing a triangle from an incircle with a radius of zero', () => {
-    expect(() => Triangle.constructFromIncircle(new Point(2, 1.5), 0)).toThrow(
-      'Error constructing triangle: incircle radius must be positive.'
-    );
+  it('should check if edges are not shared between triangles', () => {
+    const triangleA = new Triangle(new Point(0, 0), new Point(4, 0), new Point(0, 3));
+    const triangleB = new Triangle(new Point(4, 0), new Point(0, 4), new Point(4, 4));
+
+    expect(triangleA.sharesEdge(triangleB)).toBe(false);
   });
 });

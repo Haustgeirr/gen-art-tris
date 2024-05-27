@@ -1,4 +1,5 @@
 import { Point } from './Point';
+import { Edge } from '@/Utils/Types';
 
 export class Triangle {
   vertexA: Point;
@@ -77,11 +78,8 @@ export class Triangle {
     };
   }
 
-  public static constructFromIncircle(incenter: Point, radius: number): Triangle {
-    if (radius <= 0) {
-      throw new Error('Error constructing triangle: incircle radius must be positive.');
-    }
-
+  public static constructFromIncircle(incenter: Point, inradius: number): Triangle {
+    const radius = inradius > 0 ? inradius : 200;
     const sideLength = 2 * radius * Math.sqrt(3);
     const height = 3 * radius;
 
@@ -97,5 +95,25 @@ export class Triangle {
     const verticesB = [triangleB.vertexA, triangleB.vertexB, triangleB.vertexC].sort((a, b) => a.x - b.x);
 
     return verticesA.every((vertex, index) => vertex.equals(verticesB[index]));
+  }
+
+  public sharesEdge(triangleB: Triangle): boolean {
+    const edgesA = [
+      [this.vertexA, this.vertexB] as Edge,
+      [this.vertexB, this.vertexC] as Edge,
+      [this.vertexC, this.vertexA] as Edge,
+    ];
+    const edgesB = [
+      [triangleB.vertexA, triangleB.vertexB] as Edge,
+      [triangleB.vertexB, triangleB.vertexC] as Edge,
+      [triangleB.vertexC, triangleB.vertexA] as Edge,
+    ];
+    return edgesA.some((edgeA) => edgesB.some((edgeB) => this.checkEdgesAreEqual(edgeA, edgeB)));
+  }
+
+  private checkEdgesAreEqual(edgeA: Edge, edgeB: Edge): boolean {
+    const [A1, B1] = edgeA;
+    const [A2, B2] = edgeB;
+    return (A1.equals(A2) && B1.equals(B2)) || (A1.equals(B2) && B1.equals(A2));
   }
 }

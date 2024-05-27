@@ -57,7 +57,7 @@ export class DelaunayTriangulation {
         // const [vertexA, vertexB, vertexC] = triangle.getVertices();
         const { center, radius } = triangle.getCircumcircle();
 
-        if (Math.sqrt(Math.pow(point.x - center.x, 2) + Math.pow(point.y - center.y, 2)) < radius) {
+        if (Point.distance(center, point) < radius) {
           badTriangles.push(triangle);
         }
       });
@@ -66,7 +66,7 @@ export class DelaunayTriangulation {
       console.log('🚀 ~ DelaunayTriangulation ~ triangulate ~ this.triangulation:', this.triangulation);
       console.log('🚀 ~ DelaunayTriangulation ~ this.points.forEach ~ badTriangles:', badTriangles);
 
-      const polygon: [Point, Point][] = [];
+      const polygon: Edge[] = [];
 
       badTriangles.forEach((triangle) => {
         const [vertexA, vertexB, vertexC] = triangle.getVertices();
@@ -74,13 +74,13 @@ export class DelaunayTriangulation {
         // check if any edges are not shared by any other triangles in badTriangles
         if (
           badTriangles.every(
-            (otherTriangle) =>
-              otherTriangle === triangle ||
+            (badTriangle) =>
+              badTriangle.equals(triangle) ||
               ![[vertexA, vertexB] as Edge, [vertexB, vertexC] as Edge, [vertexC, vertexA] as Edge].some((edge) =>
                 [
-                  [otherTriangle.vertexA, otherTriangle.vertexB] as Edge,
-                  [otherTriangle.vertexB, otherTriangle.vertexC] as Edge,
-                  [otherTriangle.vertexC, otherTriangle.vertexA] as Edge,
+                  [badTriangle.vertexA, badTriangle.vertexB] as Edge,
+                  [badTriangle.vertexB, badTriangle.vertexC] as Edge,
+                  [badTriangle.vertexC, badTriangle.vertexA] as Edge,
                 ].some((otherEdge) => this.checkEdgesAreEqual(edge, otherEdge))
               )
           )
@@ -92,7 +92,7 @@ export class DelaunayTriangulation {
       });
 
       badTriangles.forEach((triangle) => {
-        this.triangulation = this.triangulation.filter((otherTriangle) => !triangle.equals(otherTriangle));
+        // this.triangulation = this.triangulation.filter((otherTriangle) => !triangle.equals(otherTriangle));
       });
 
       polygon.forEach(([vertexA, vertexB]) => {
