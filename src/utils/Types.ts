@@ -1,4 +1,3 @@
-export type Point = {
-  x: number;
-  y: number;
-};
+import { Point } from '@/Objects/Point';
+
+export type Edge = [Point, Point];

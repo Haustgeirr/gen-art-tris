@@ -11,50 +11,21 @@ type Edge = [Point, Point];
 export class DelaunayTriangulation {
   private points: Point[] = [];
   private triangulation: Triangle[] = [];
+  private superTriangle: Triangle;
 
   constructor(points: Point[]) {
     this.points = points;
+    this.superTriangle = this.makeSuperTriangle();
   }
 
+  // Bowyer-Watson algorithm
   triangulate(): Triangle[] {
-    // Bowyer-Watson algorithm
-    // pointList is a set of coordinates defining the points to be triangulated
-    // triangulation := empty triangle mesh data structure
-    // add super-triangle to triangulation // must be large enough to completely contain all the points in pointList
-
-    // for each point in pointList do // add all the points one at a time to the triangulation
-    //     badTriangles := empty set
-
-    //     for each triangle in triangulation do // first find all the triangles that are no longer valid due to the insertion
-    //         if point is inside circumcircle of triangle
-    //             add triangle to badTriangles
-    //     polygon := empty set
-
-    //     for each triangle in badTriangles do // find the boundary of the polygonal hole
-    //         for each edge in triangle do
-    //             if edge is not shared by any other triangles in badTriangles
-    //                 add edge to polygon
-
-    // --- we are here
-    //     for each triangle in badTriangles do // remove them from the data structure
-    //         remove triangle from triangulation
-
-    //     for each edge in polygon do // re-triangulate the polygonal hole
-    //         newTri := form a triangle from edge to point
-    //         add newTri to triangulation
-
-    // for each triangle in triangulation // done inserting points, now clean up
-    //     if triangle contains a vertex from original super-triangle
-    //         remove triangle from triangulation
-    // return triangulation
-
-    this.triangulation.push(this.makeSuperTriangle());
+    this.triangulation.push(this.superTriangle);
 
     this.points.forEach((point) => {
       const badTriangles: Triangle[] = [];
 
       this.triangulation.forEach((triangle) => {
-        // const [vertexA, vertexB, vertexC] = triangle.getVertices();
         const { center, radius } = triangle.getCircumcircle();
 
         if (Point.distance(center, point) < radius) {
@@ -62,37 +33,27 @@ export class DelaunayTriangulation {
         }
       });
 
-      console.log('🚀 ~ DelaunayTriangulation ~ this.points.splice ~ point:', point);
-      console.log('🚀 ~ DelaunayTriangulation ~ triangulate ~ this.triangulation:', this.triangulation);
-      console.log('🚀 ~ DelaunayTriangulation ~ this.points.forEach ~ badTriangles:', badTriangles);
-
       const polygon: Edge[] = [];
 
-      badTriangles.forEach((triangle) => {
-        const [vertexA, vertexB, vertexC] = triangle.getVertices();
-
+      badTriangles.forEach((badTriangle, index) => {
         // check if any edges are not shared by any other triangles in badTriangles
-        if (
-          badTriangles.every(
-            (badTriangle) =>
-              badTriangle.equals(triangle) ||
-              ![[vertexA, vertexB] as Edge, [vertexB, vertexC] as Edge, [vertexC, vertexA] as Edge].some((edge) =>
-                [
-                  [badTriangle.vertexA, badTriangle.vertexB] as Edge,
-                  [badTriangle.vertexB, badTriangle.vertexC] as Edge,
-                  [badTriangle.vertexC, badTriangle.vertexA] as Edge,
-                ].some((otherEdge) => this.checkEdgesAreEqual(edge, otherEdge))
-              )
-          )
-        ) {
-          polygon.push([vertexA, vertexB]);
-          polygon.push([vertexB, vertexC]);
-          polygon.push([vertexC, vertexA]);
-        }
+        const badEdges = badTriangle.getEdges();
+        const otherTriangles = [...badTriangles];
+        otherTriangles.splice(index, 1);
+
+        badEdges.forEach((badEdge) => {
+          const isShared = otherTriangles.some((otherTriangle) =>
+            otherTriangle.getEdges().some((otherEdge) => this.checkEdgesAreEqual(badEdge, otherEdge))
+          );
+
+          if (!isShared) {
+            polygon.push(badEdge);
+          }
+        });
       });
 
       badTriangles.forEach((triangle) => {
-        // this.triangulation = this.triangulation.filter((otherTriangle) => !triangle.equals(otherTriangle));
+        this.triangulation = this.triangulation.filter((otherTriangle) => !triangle.equals(otherTriangle));
       });
 
       polygon.forEach(([vertexA, vertexB]) => {
@@ -100,12 +61,9 @@ export class DelaunayTriangulation {
       });
     });
 
-    // this.triangulation = this.triangulation.filter(
-    //   // ([vertexA, vertexB, vertexC]) =>
-    //   //   !this.triangulation[0].some((vertex) => [vertexA, vertexB, vertexC].includes(vertex))
-    //   ([vertexA, vertexB, vertexC]) =>
-    //     !this.triangulation[0].some((vertex) => vertexA === vertex || vertexB === vertex || vertexC === vertex)
-    // );
+    this.triangulation = this.triangulation.filter(
+      (triangle) => !triangle.getVertices().some((vertex) => this.superTriangle.includes(vertex))
+    );
 
     return this.triangulation;
   }

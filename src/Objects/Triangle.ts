@@ -28,6 +28,23 @@ export class Triangle {
     return this.vertexC;
   }
 
+  public getEdges(): Edge[] {
+    return [
+      [this.vertexA, this.vertexB] as Edge,
+      [this.vertexB, this.vertexC] as Edge,
+      [this.vertexC, this.vertexA] as Edge,
+    ];
+  }
+
+  public includes(point: Point): boolean {
+    const [A, B, C] = this.getVertices();
+
+    if (A.equals(point) || B.equals(point) || C.equals(point)) {
+      return true;
+    }
+    return false;
+  }
+
   public getCircumcircle(): { center: Point; radius: number } {
     const [A, B, C] = this.getVertices();
 
