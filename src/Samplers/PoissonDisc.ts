@@ -17,8 +17,8 @@ export class PoissonDisc implements INoiseGenerator {
     this.windowWidth = width;
     this.windowHeight = height;
     this.cellSize = cellSize;
-    this.gridWidth = Math.floor(window.innerWidth / cellSize) + 1;
-    this.gridHeight = Math.floor(window.innerHeight / cellSize) + 1;
+    this.gridWidth = Math.floor(width / cellSize) + 1;
+    this.gridHeight = Math.floor(height / cellSize) + 1;
   }
 
   generate(): Point[] {
