@@ -47,4 +47,8 @@ export class DelaunayTriangulationSO extends SceneObject {
       p5.triangle(vertexA.x, vertexA.y, vertexB.x, vertexB.y, vertexC.x, vertexC.y);
     });
   }
+
+  getTriangulation(): Triangle[] {
+    return this.triangulation;
+  }
 }

@@ -15,6 +15,7 @@ export class VoronoiDiagram {
 
       this.points.push(center);
     });
+
     return this.points;
   }
 }
