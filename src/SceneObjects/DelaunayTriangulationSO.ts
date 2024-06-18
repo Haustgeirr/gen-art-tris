@@ -7,6 +7,7 @@ import { DelaunayTriangulation } from '@/Samplers/DelaunayTriangulation';
 
 export class DelaunayTriangulationSO extends SceneObject {
   private triangulation: Triangle[] = [];
+  private edgeToTrianglesMap: Map<number, Triangle[]> = new Map();
 
   // #355d68
   // #6aaf9d
@@ -33,6 +34,7 @@ export class DelaunayTriangulationSO extends SceneObject {
     super();
     const delaunayTriangulation = new DelaunayTriangulation(points);
     this.triangulation = delaunayTriangulation.triangulate();
+    this.edgeToTrianglesMap = delaunayTriangulation.getEdgeToTrianglesMap();
   }
 
   render(p5: p5): void {
@@ -50,5 +52,9 @@ export class DelaunayTriangulationSO extends SceneObject {
 
   getTriangulation(): Triangle[] {
     return this.triangulation;
+  }
+
+  getEdgeToTrianglesMap(): Map<number, Triangle[]> {
+    return this.edgeToTrianglesMap;
   }
 }

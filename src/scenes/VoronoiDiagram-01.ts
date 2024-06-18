@@ -8,6 +8,8 @@ const pdsObject = new PoissonDiscSO(window.innerWidth, window.innerHeight, 32);
 const dtObject = new DelaunayTriangulationSO(pdsObject.getPoints());
 const vdObject = new VoronoiDiagramSO(dtObject.getTriangulation());
 
+console.log({ triangleMap: dtObject.getEdgeToTrianglesMap() });
+
 renderer.addObject(dtObject);
 renderer.addObject(pdsObject);
 renderer.addObject(vdObject);
