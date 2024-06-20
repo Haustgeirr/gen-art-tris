@@ -1,5 +1,5 @@
 import { Point } from './Point';
-import { Edge } from '@/Utils/Types';
+import { Edge } from '@/Objects/Edge';
 
 export class Triangle {
   vertexA: Point;
@@ -30,9 +30,9 @@ export class Triangle {
 
   public getEdges(): Edge[] {
     return [
-      [this.vertexA, this.vertexB] as Edge,
-      [this.vertexB, this.vertexC] as Edge,
-      [this.vertexC, this.vertexA] as Edge,
+      new Edge(this.vertexA, this.vertexB),
+      new Edge(this.vertexB, this.vertexC),
+      new Edge(this.vertexC, this.vertexA),
     ];
   }
 
@@ -115,22 +115,6 @@ export class Triangle {
   }
 
   public sharesEdge(triangleB: Triangle): boolean {
-    const edgesA = [
-      [this.vertexA, this.vertexB] as Edge,
-      [this.vertexB, this.vertexC] as Edge,
-      [this.vertexC, this.vertexA] as Edge,
-    ];
-    const edgesB = [
-      [triangleB.vertexA, triangleB.vertexB] as Edge,
-      [triangleB.vertexB, triangleB.vertexC] as Edge,
-      [triangleB.vertexC, triangleB.vertexA] as Edge,
-    ];
-    return edgesA.some((edgeA) => edgesB.some((edgeB) => this.checkEdgesAreEqual(edgeA, edgeB)));
-  }
-
-  private checkEdgesAreEqual(edgeA: Edge, edgeB: Edge): boolean {
-    const [A1, B1] = edgeA;
-    const [A2, B2] = edgeB;
-    return (A1.equals(A2) && B1.equals(B2)) || (A1.equals(B2) && B1.equals(A2));
+    return this.getEdges().some((edgeA) => triangleB.getEdges().some((edgeB) => edgeA.equals(edgeB)));
   }
 }

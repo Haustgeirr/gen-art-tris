@@ -1,12 +1,11 @@
 import { Point } from '@/Objects/Point';
 import { Triangle } from '@/Objects/Triangle';
+import { Edge } from '@/Objects/Edge';
 
 export type Circle = {
   center: Point;
   radius: number;
 };
-
-type Edge = [Point, Point];
 
 export class DelaunayTriangulation {
   private points: Point[] = [];
@@ -45,7 +44,7 @@ export class DelaunayTriangulation {
 
         badEdges.forEach((badEdge) => {
           const isShared = otherTriangles.some((otherTriangle) =>
-            otherTriangle.getEdges().some((otherEdge) => this.checkEdgesAreEqual(badEdge, otherEdge))
+            otherTriangle.getEdges().some((otherEdge) => badEdge.equals(otherEdge))
           );
 
           if (!isShared) {
@@ -58,12 +57,14 @@ export class DelaunayTriangulation {
         this.triangulation = this.triangulation.filter((otherTriangle) => !triangle.equals(otherTriangle));
       });
 
-      polygon.forEach(([vertexA, vertexB]) => {
+      polygon.forEach((poly) => {
+        const [vertexA, vertexB] = poly.getVertices();
+
         const newTriangle = new Triangle(vertexA, vertexB, point);
         const edges = this.getSortedEdges(newTriangle);
 
         edges.forEach((edge) => {
-          const edgeKey = this.hashFloats(edge[0].x, edge[0].y, edge[1].x, edge[1].y);
+          const edgeKey = 0;
 
           if (!this.edgeToTrianglesMap.has(edgeKey)) {
             this.edgeToTrianglesMap.set(edgeKey, []);
@@ -89,20 +90,9 @@ export class DelaunayTriangulation {
   private getSortedEdges(triangle: Triangle): Edge[] {
     const [v0, v1, v2] = triangle.getVertices().sort((a, b) => a.x - b.x);
 
-    const edges: Edge[] = [
-      [v0, v1],
-      [v1, v2],
-      [v2, v0],
-    ];
+    const edges = [new Edge(v0, v1), new Edge(v1, v2), new Edge(v2, v0)];
 
     return edges;
-  }
-
-  private checkEdgesAreEqual(edgeA: Edge, edgeB: Edge): boolean {
-    const [A1, B1] = edgeA;
-    const [A2, B2] = edgeB;
-
-    return (A1.equals(A2) && B1.equals(B2)) || (A1.equals(B2) && B1.equals(A2));
   }
 
   private makeSuperTriangle(): Triangle {
@@ -118,25 +108,5 @@ export class DelaunayTriangulation {
     const midy = (minY + maxY) / 2;
 
     return Triangle.constructFromIncircle(new Point(midx, midy), deltaMax);
-  }
-
-  private hashFloats(f1: number, f2: number, f3: number, f4: number): number {
-    const buffer = new ArrayBuffer(32); // 4 floats * 8 bytes each (Float64)
-    const view = new DataView(buffer);
-
-    // Store the float numbers into the buffer
-    view.setFloat64(0, f1);
-    view.setFloat64(8, f2);
-    view.setFloat64(16, f3);
-    view.setFloat64(24, f4);
-
-    // Basic hash function (djb2)
-    let hash = 5381;
-    for (let i = 0; i < buffer.byteLength; i++) {
-      hash = (hash * 33) ^ view.getUint8(i);
-    }
-
-    // Ensure the hash as an unsigned 32-bit integer
-    return hash >>> 0;
   }
 }
