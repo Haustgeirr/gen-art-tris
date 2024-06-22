@@ -45,6 +45,14 @@ export class Triangle {
     return false;
   }
 
+  public hasCommonEdge(triangleB: Triangle): boolean {
+    return this.getEdges().some((edgeA) => triangleB.getEdges().some((edgeB) => edgeA.equals(edgeB)));
+  }
+
+  public getSharedEdge(triangleB: Triangle): Edge | undefined {
+    return this.getEdges().find((edgeA) => triangleB.getEdges().some((edgeB) => edgeA.equals(edgeB)));
+  }
+
   public getCircumcircle(): { center: Point; radius: number } {
     const [A, B, C] = this.getVertices();
 

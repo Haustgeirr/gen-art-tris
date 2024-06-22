@@ -11,7 +11,8 @@ export class DelaunayTriangulation {
   private points: Point[] = [];
   private triangulation: Triangle[] = [];
   private superTriangle: Triangle;
-  private edgeToTrianglesMap: Map<number, Triangle[]>;
+  private edgeToTrianglesMap: Map<number, number[]>;
+  private edges: Edge[] = [];
 
   constructor(points: Point[]) {
     this.points = points;
@@ -20,7 +21,7 @@ export class DelaunayTriangulation {
   }
 
   // Bowyer-Watson algorithm
-  triangulate(): Triangle[] {
+  triangulate() {
     this.triangulation.push(this.superTriangle);
 
     this.points.forEach((point) => {
@@ -59,18 +60,7 @@ export class DelaunayTriangulation {
 
       polygon.forEach((poly) => {
         const [vertexA, vertexB] = poly.getVertices();
-
         const newTriangle = new Triangle(vertexA, vertexB, point);
-        const edges = this.getSortedEdges(newTriangle);
-
-        edges.forEach((edge) => {
-          const edgeKey = 0;
-
-          if (!this.edgeToTrianglesMap.has(edgeKey)) {
-            this.edgeToTrianglesMap.set(edgeKey, []);
-          }
-          this.edgeToTrianglesMap.get(edgeKey)!.push(newTriangle); // Push the index of the current triangle
-        });
 
         this.triangulation.push(newTriangle);
       });
@@ -80,14 +70,38 @@ export class DelaunayTriangulation {
       (triangle) => !triangle.getVertices().some((vertex) => this.superTriangle.includes(vertex))
     );
 
+    this.makeEdgesToTriangleMap();
+
     return this.triangulation;
   }
 
-  getEdgeToTrianglesMap(): Map<number, Triangle[]> {
+  private makeEdgesToTriangleMap() {
+    this.triangulation.forEach((triangle, index) => {
+      const edges = this.getSortedEdges(triangle);
+
+      edges.forEach((edge) => {
+        let edgeIndex = this.edges.findIndex((e) => e.equals(edge));
+
+        if (edgeIndex === -1) {
+          this.edges.push(edge);
+          this.edgeToTrianglesMap.set(this.edges.length - 1, []);
+          edgeIndex = this.edges.length - 1;
+        }
+
+        this.edgeToTrianglesMap.get(edgeIndex)!.push(index);
+      });
+    });
+  }
+
+  getEdgeToTrianglesMap() {
     return this.edgeToTrianglesMap;
   }
 
-  private getSortedEdges(triangle: Triangle): Edge[] {
+  getEdges() {
+    return this.edges;
+  }
+
+  private getSortedEdges(triangle: Triangle) {
     const [v0, v1, v2] = triangle.getVertices().sort((a, b) => a.x - b.x);
 
     const edges = [new Edge(v0, v1), new Edge(v1, v2), new Edge(v2, v0)];
@@ -95,7 +109,7 @@ export class DelaunayTriangulation {
     return edges;
   }
 
-  private makeSuperTriangle(): Triangle {
+  private makeSuperTriangle() {
     const minX = Math.min(...this.points.map((point) => point.x));
     const minY = Math.min(...this.points.map((point) => point.y));
     const maxX = Math.max(...this.points.map((point) => point.x));
