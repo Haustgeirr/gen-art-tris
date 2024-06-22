@@ -30,8 +30,8 @@ export class PoissonDiscSO extends SceneObject {
     p5.stroke(p5.color(255, 255, 255));
 
     this.points.forEach((point, index) => {
-      p5.fill(p5.color(...this.colourArray[index % this.colourArray.length]));
-      p5.stroke(p5.color(...this.colourArray[index % this.colourArray.length]));
+      // p5.fill(p5.color(...this.colourArray[index % this.colourArray.length]));
+      // p5.stroke(p5.color(...this.colourArray[index % this.colourArray.length]));
       p5.circle(point.x, point.y, 4);
     });
   }

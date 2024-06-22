@@ -1,17 +1,17 @@
 import { Point } from '@/Objects/Point';
 import { Triangle } from '@/Objects/Triangle';
 import { Triangulation } from '@/Objects/Triangulation';
+import { Edge } from '@/Objects/Edge';
 
-// TODO: create Triangulation class
-// TODO: add getNeighbouroingTriangles method
-// TODO: then get neihbour triangles from this, and join their circumcentres with edges
 // TODO: if an edge has no neighbour, then it is a boundary edge
 // TODO: for boundary edges draw boundary lines
 // TODO: boundary lines are a perpendicular bisector of the edge to canvas boundary;
+// TODO: create polygons from edges, so that we can fill them with color
 
 export class VoronoiDiagram {
   private points: Point[] = [];
   private triangulation: Triangulation;
+  private edges: Edge[] = [];
 
   constructor(triangulation: Triangulation | Triangle[]) {
     if (triangulation instanceof Triangulation) {
@@ -21,13 +21,22 @@ export class VoronoiDiagram {
     }
   }
 
-  generate(): Point[] {
+  generate() {
     this.triangulation.getTriangles().forEach((triangle) => {
       const { center } = triangle.getCircumcircle();
+      console.log('triangle,', triangle);
 
       this.points.push(center);
+
+      this.triangulation.getNeighbouringTriangles(triangle).forEach((neighbour) => {
+        // connect cirumcenters with edges
+        const ccA = triangle.getCircumcircle().center;
+        const ccB = neighbour.getCircumcircle().center;
+
+        this.edges.push(new Edge(ccA, ccB));
+      });
     });
 
-    return this.points;
+    return { edges: this.edges, points: this.points };
   }
 }

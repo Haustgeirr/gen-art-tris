@@ -2,9 +2,11 @@
 import { Point } from '@/Objects/Point';
 import { INoiseGenerator } from '@/Interfaces/INoiseGenerator';
 
+// TODO: seed random number generator
+
 const MAX_DURATION_MS = 15;
 const SAMPLES_BEFORE_REJECTION = 10;
-const MAX_POINTS = 5;
+const MAX_POINTS = 500;
 
 export class PoissonDisc implements INoiseGenerator {
   windowWidth: number;

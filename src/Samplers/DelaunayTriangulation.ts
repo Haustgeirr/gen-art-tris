@@ -2,6 +2,10 @@ import { Point } from '@/Objects/Point';
 import { Triangle } from '@/Objects/Triangle';
 import { Edge } from '@/Objects/Edge';
 
+// TODO: remove edgeToTrianglesMap
+// TODO: return edges as well as triangles
+// TODO: return Triangulation object
+
 export type Circle = {
   center: Point;
   radius: number;
