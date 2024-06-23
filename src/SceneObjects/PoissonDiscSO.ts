@@ -19,9 +19,9 @@ export class PoissonDiscSO extends SceneObject {
     [167, 49, 105],
   ];
 
-  constructor(windowWidth: number, windowHeight: number, cellSize: number) {
+  constructor(windowWidth: number, windowHeight: number, cellSize: number, seed?: string) {
     super();
-    this.pds = new PoissonDisc(windowWidth, windowHeight, cellSize);
+    this.pds = new PoissonDisc(windowWidth, windowHeight, cellSize, seed);
     this.points = this.pds.generate();
   }
 

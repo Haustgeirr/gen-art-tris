@@ -24,10 +24,8 @@ export class VoronoiDiagram {
   generate() {
     this.triangulation.getTriangles().forEach((triangle) => {
       const { center } = triangle.getCircumcircle();
-      console.log('triangle,', triangle);
 
       this.points.push(center);
-
       this.triangulation.getNeighbouringTriangles(triangle).forEach((neighbour) => {
         // connect cirumcenters with edges
         const ccA = triangle.getCircumcircle().center;

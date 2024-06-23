@@ -1,6 +1,7 @@
 // import { Point } from '@/Utils/Types';
 import { Point } from '@/Objects/Point';
 import { INoiseGenerator } from '@/Interfaces/INoiseGenerator';
+import { Alea } from '@/Utils/Random';
 
 // TODO: seed random number generator
 
@@ -14,13 +15,20 @@ export class PoissonDisc implements INoiseGenerator {
   cellSize: number;
   gridWidth: number;
   gridHeight: number;
+  seed: string;
 
-  constructor(width: number, height: number, cellSize: number) {
+  constructor(width: number, height: number, cellSize: number, seed?: string) {
     this.windowWidth = width;
     this.windowHeight = height;
     this.cellSize = cellSize;
     this.gridWidth = Math.floor(width / cellSize) + 1;
     this.gridHeight = Math.floor(height / cellSize) + 1;
+
+    if (!seed) {
+      this.seed = new Date().toString();
+    } else {
+      this.seed = seed;
+    }
   }
 
   generate(): Point[] {
@@ -29,16 +37,17 @@ export class PoissonDisc implements INoiseGenerator {
     const grid: Point[][] = [];
     let finished = false;
     const start = Date.now();
+    const alea = new Alea([this.seed]);
 
     candidatePoints.push(new Point(this.windowWidth / 2, this.windowHeight / 2));
 
     while (!finished && Date.now() - start < MAX_DURATION_MS) {
-      const index = (Math.random() * (candidatePoints.length - 1)) | 0;
+      const index = (alea.random() * (candidatePoints.length - 1)) | 0;
       let newPointIsValid = false;
 
       for (let k = 0; k < SAMPLES_BEFORE_REJECTION; k++) {
-        const a = Math.random() * Math.PI * 2;
-        const r = Math.random() * 2 * this.cellSize + this.cellSize;
+        const a = alea.random() * Math.PI * 2;
+        const r = alea.random() * 2 * this.cellSize + this.cellSize;
 
         const newPoint = new Point(
           candidatePoints[index].x + r * Math.cos(a),
