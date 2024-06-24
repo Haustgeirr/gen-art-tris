@@ -9,7 +9,9 @@ export class Alea {
   private seeds: string[] = [];
 
   constructor(seeds: string[]) {
-    if (seeds.length === 0) {
+    if (seeds.length > 0) {
+      this.seeds = seeds;
+    } else {
       this.seeds = [new Date().toString()];
     }
 
@@ -37,6 +39,7 @@ export class Alea {
     const t = 2091639 * this.s0 + this.c * 2.3283064365386963e-10; // 2^-32
     this.s0 = this.s1;
     this.s1 = this.s2;
+
     return (this.s2 = t - (this.c = t | 0));
   }
 
@@ -47,6 +50,7 @@ export class Alea {
   public fract53() {
     return this.random() + ((this.random() * 0x200000) | 0) * 1.1102230246251565e-16; // 2^-53
   }
+
   private mash(seed: string): number {
     let n = 0xefc8249d;
 
