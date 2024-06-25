@@ -2,10 +2,6 @@ import { Point } from '@/Objects/Point';
 import { Triangle } from '@/Objects/Triangle';
 import { Edge } from '@/Objects/Edge';
 
-// TODO: remove edgeToTrianglesMap
-// TODO: return edges as well as triangles
-// TODO: return Triangulation object
-
 export type Circle = {
   center: Point;
   radius: number;
@@ -13,25 +9,23 @@ export type Circle = {
 
 export class DelaunayTriangulation {
   private points: Point[] = [];
-  private triangulation: Triangle[] = [];
+  private triangles: Triangle[] = [];
   private superTriangle: Triangle;
-  private edgeToTrianglesMap: Map<number, number[]>;
   private edges: Edge[] = [];
 
   constructor(points: Point[]) {
     this.points = points;
     this.superTriangle = this.makeSuperTriangle();
-    this.edgeToTrianglesMap = new Map();
   }
 
   // Bowyer-Watson algorithm
   triangulate() {
-    this.triangulation.push(this.superTriangle);
+    this.triangles.push(this.superTriangle);
 
     this.points.forEach((point) => {
       const badTriangles: Triangle[] = [];
 
-      this.triangulation.forEach((triangle) => {
+      this.triangles.forEach((triangle) => {
         const { center, radius } = triangle.getCircumcircle();
 
         if (Point.distance(center, point) < radius) {
@@ -59,58 +53,30 @@ export class DelaunayTriangulation {
       });
 
       badTriangles.forEach((triangle) => {
-        this.triangulation = this.triangulation.filter((otherTriangle) => !triangle.equals(otherTriangle));
+        this.triangles = this.triangles.filter((otherTriangle) => !triangle.equals(otherTriangle));
       });
 
       polygon.forEach((poly) => {
         const [vertexA, vertexB] = poly.getVertices();
         const newTriangle = new Triangle(vertexA, vertexB, point);
 
-        this.triangulation.push(newTriangle);
+        this.triangles.push(newTriangle);
       });
     });
 
-    this.triangulation = this.triangulation.filter(
+    this.triangles = this.triangles.filter(
       (triangle) => !triangle.getVertices().some((vertex) => this.superTriangle.includes(vertex))
     );
 
-    this.makeEdgesToTriangleMap();
-
-    return this.triangulation;
-  }
-
-  private makeEdgesToTriangleMap() {
-    this.triangulation.forEach((triangle, index) => {
-      const edges = this.getSortedEdges(triangle);
-
-      edges.forEach((edge) => {
-        let edgeIndex = this.edges.findIndex((e) => e.equals(edge));
-
-        if (edgeIndex === -1) {
-          this.edges.push(edge);
-          this.edgeToTrianglesMap.set(this.edges.length - 1, []);
-          edgeIndex = this.edges.length - 1;
-        }
-
-        this.edgeToTrianglesMap.get(edgeIndex)!.push(index);
-      });
+    this.triangles.forEach((triangle) => {
+      this.edges.push(...triangle.getEdges());
     });
-  }
 
-  getEdgeToTrianglesMap() {
-    return this.edgeToTrianglesMap;
+    return this.triangles;
   }
 
   getEdges() {
     return this.edges;
-  }
-
-  private getSortedEdges(triangle: Triangle) {
-    const [v0, v1, v2] = triangle.getVertices().sort((a, b) => a.x - b.x);
-
-    const edges = [new Edge(v0, v1), new Edge(v1, v2), new Edge(v2, v0)];
-
-    return edges;
   }
 
   private makeSuperTriangle() {

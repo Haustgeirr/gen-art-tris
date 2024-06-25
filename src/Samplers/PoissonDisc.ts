@@ -3,8 +3,6 @@ import { Point } from '@/Objects/Point';
 import { INoiseGenerator } from '@/Interfaces/INoiseGenerator';
 import { Alea } from '@/Utils/Random';
 
-// TODO: seed random number generator
-
 const MAX_DURATION_MS = 15;
 const SAMPLES_BEFORE_REJECTION = 10;
 const MAX_POINTS = 500;
