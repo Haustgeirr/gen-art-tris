@@ -25,13 +25,21 @@ export class VoronoiDiagram {
     this.triangulation.getTriangles().forEach((triangle) => {
       const { center } = triangle.getCircumcircle();
 
+      let unboundEdges = triangle.getEdges();
+
       this.points.push(center);
-      this.triangulation.getNeighbouringTriangles(triangle).forEach((neighbour) => {
+      const neighbours = this.triangulation.getNeighbouringTriangles(triangle);
+
+      neighbours.forEach((neighbour) => {
         // connect cirumcenters with edges
         const ccA = triangle.getCircumcircle().center;
         const ccB = neighbour.getCircumcircle().center;
 
         this.edges.push(new Edge(ccA, ccB));
+
+        if (neighbours.length < 3) {
+          unboundEdges = unboundEdges.filter((edge) => !triangle.getSharedEdge(neighbour)!.equals(edge));
+        }
       });
     });
 
