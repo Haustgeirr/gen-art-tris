@@ -24,11 +24,12 @@ export class VoronoiDiagram {
   generate() {
     this.triangulation.getTriangles().forEach((triangle) => {
       const { center } = triangle.getCircumcircle();
-
-      let unboundEdges = triangle.getEdges();
-
       this.points.push(center);
-      const neighbours = this.triangulation.getNeighbouringTriangles(triangle);
+
+      const { neighbours, commonEdges } = this.triangulation.getNeighbouringTriangles(triangle);
+      let unboundEdges = triangle
+        .getEdges()
+        .filter((edge) => !commonEdges.some((commonEdge) => commonEdge.equals(edge)));
 
       neighbours.forEach((neighbour) => {
         // connect cirumcenters with edges
@@ -36,10 +37,13 @@ export class VoronoiDiagram {
         const ccB = neighbour.getCircumcircle().center;
 
         this.edges.push(new Edge(ccA, ccB));
+      });
 
-        if (neighbours.length < 3) {
-          unboundEdges = unboundEdges.filter((edge) => !triangle.getSharedEdge(neighbour)!.equals(edge));
-        }
+      unboundEdges.forEach((edge) => {
+        // connect circumcenters with edges
+        const ccA = triangle.getCircumcircle().center;
+        const ccB = edge.getMidpoint();
+        this.edges.push(new Edge(ccA, ccB));
       });
     });
 

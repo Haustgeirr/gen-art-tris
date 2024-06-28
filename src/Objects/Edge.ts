@@ -15,4 +15,8 @@ export class Edge {
   public equals(edgeB: Edge): boolean {
     return this.vertexA.equals(edgeB.vertexA) && this.vertexB.equals(edgeB.vertexB);
   }
+
+  public getMidpoint(): Point {
+    return new Point((this.vertexA.x + this.vertexB.x) / 2, (this.vertexA.y + this.vertexB.y) / 2);
+  }
 }

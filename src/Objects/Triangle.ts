@@ -49,6 +49,10 @@ export class Triangle {
     return this.getEdges().some((edgeA) => triangleB.getEdges().some((edgeB) => edgeA.equals(edgeB)));
   }
 
+  public getCommonEdge(triangleB: Triangle): Edge | undefined {
+    return this.getEdges().find((edgeA) => triangleB.getEdges().some((edgeB) => edgeA.equals(edgeB)));
+  }
+
   public getSharedEdge(triangleB: Triangle): Edge | undefined {
     return this.getEdges().find((edgeA) => triangleB.getEdges().some((edgeB) => edgeA.equals(edgeB)));
   }

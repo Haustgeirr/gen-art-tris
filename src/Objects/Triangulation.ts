@@ -1,4 +1,5 @@
 import { Triangle } from '@/Objects/Triangle';
+import { Edge } from '@/Objects/Edge';
 
 export class Triangulation {
   private triangles: Triangle[] = [];
@@ -8,13 +9,25 @@ export class Triangulation {
   }
 
   public getNeighbouringTriangles(triangle: Triangle) {
-    return this.triangles.filter((otherTriangle) => {
+    const neighbours: Triangle[] = [];
+    const commonEdges: Edge[] = [];
+
+    this.triangles.forEach((otherTriangle) => {
       if (triangle.equals(otherTriangle)) {
         return false;
       }
 
-      return triangle.hasCommonEdge(otherTriangle);
+      const commonEdge = triangle.getCommonEdge(otherTriangle);
+
+      if (commonEdge) {
+        neighbours.push(otherTriangle);
+        commonEdges.push(commonEdge);
+      }
+
+      return commonEdge !== undefined;
     });
+
+    return { neighbours, commonEdges };
   }
 
   public getTriangles() {
