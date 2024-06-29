@@ -43,7 +43,13 @@ export class VoronoiDiagram {
         // connect circumcenters with edges
         const ccA = triangle.getCircumcircle().center;
         const ccB = edge.getMidpoint();
-        this.edges.push(new Edge(ccA, ccB));
+
+        const direction = ccB.directionTo(ccA).normalize();
+        const distance = ccA.distance(ccB);
+
+        this.edges.push(
+          new Edge(ccA, new Point(ccA.x + direction.x * distance * 2, ccA.y + direction.y * distance * 2))
+        );
       });
     });
 

@@ -28,7 +28,7 @@ export class DelaunayTriangulation {
       this.triangles.forEach((triangle) => {
         const { center, radius } = triangle.getCircumcircle();
 
-        if (Point.distance(center, point) < radius) {
+        if (center.distance(point) < radius) {
           badTriangles.push(triangle);
         }
       });

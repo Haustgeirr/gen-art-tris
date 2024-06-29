@@ -25,7 +25,16 @@ export class Point {
     return new Point(input.x, input.y);
   }
 
-  public static distance(p1: Point, p2: Point): number {
-    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+  public distance(p: Point): number {
+    return Math.sqrt(Math.pow(p.x - this.x, 2) + Math.pow(p.y - this.y, 2));
+  }
+
+  public directionTo(p: Point): Point {
+    return new Point(p.x - this.x, p.y - this.y);
+  }
+
+  public normalize(): Point {
+    const magnitude = Math.sqrt(this.x * this.x + this.y * this.y);
+    return new Point(this.x / magnitude, this.y / magnitude);
   }
 }
