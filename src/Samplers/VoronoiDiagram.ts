@@ -3,10 +3,10 @@ import { Triangle } from '@/Objects/Triangle';
 import { Triangulation } from '@/Objects/Triangulation';
 import { Edge } from '@/Objects/Edge';
 
-// TODO: if an edge has no neighbour, then it is a boundary edge
-// TODO: for boundary edges draw boundary lines
-// TODO: boundary lines are a perpendicular bisector of the edge to canvas boundary;
 // TODO: create polygons from edges, so that we can fill them with color
+// TODO: connect circumcenters with boundary edges
+// TODO: if circumcenter is outside triangle, invert direction
+// FIX: current dir calc is inverted
 
 export class VoronoiDiagram {
   private points: Point[] = [];
