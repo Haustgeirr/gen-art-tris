@@ -6,7 +6,6 @@ import { Edge } from '@/Objects/Edge';
 // TODO: create polygons from edges, so that we can fill them with color
 // TODO: connect circumcenters with boundary edges
 // TODO: if circumcenter is outside triangle, invert direction
-// FIX: current dir calc is inverted
 
 export class VoronoiDiagram {
   private points: Point[] = [];
@@ -44,12 +43,16 @@ export class VoronoiDiagram {
         const ccA = triangle.getCircumcircle().center;
         const ccB = edge.getMidpoint();
 
-        const direction = ccB.directionTo(ccA).normalize();
+        let direction = ccA.directionTo(ccB).normalize();
         const distance = ccA.distance(ccB);
 
-        this.edges.push(
-          new Edge(ccA, new Point(ccA.x + direction.x * distance * 2, ccA.y + direction.y * distance * 2))
-        );
+        const isInside = triangle.isPointInside(ccA);
+
+        if (!isInside) {
+          direction = new Point(-direction.x, -direction.y);
+        }
+
+        this.edges.push(new Edge(ccA, new Point(ccA.x + direction.x * distance, ccA.y + direction.y * distance)));
       });
     });
 

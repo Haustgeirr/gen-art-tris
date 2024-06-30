@@ -57,6 +57,17 @@ export class Triangle {
     return this.getEdges().find((edgeA) => triangleB.getEdges().some((edgeB) => edgeA.equals(edgeB)));
   }
 
+  public isPointInside(point: Point): boolean {
+    const [A, B, C] = this.getVertices();
+    const denominator = (B.y - C.y) * (A.x - C.x) + (C.x - B.x) * (A.y - C.y);
+
+    const a = ((B.y - C.y) * (point.x - C.x) + (C.x - B.x) * (point.y - C.y)) / denominator;
+    const b = ((C.y - A.y) * (point.x - C.x) + (A.x - C.x) * (point.y - C.y)) / denominator;
+    const c = 1 - a - b;
+
+    return a > 0 && b > 0 && c > 0;
+  }
+
   public getCircumcircle(): { center: Point; radius: number } {
     const [A, B, C] = this.getVertices();
 
