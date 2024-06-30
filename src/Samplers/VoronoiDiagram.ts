@@ -5,7 +5,7 @@ import { Edge } from '@/Objects/Edge';
 
 // TODO: create polygons from edges, so that we can fill them with color
 // TODO: connect circumcenters with boundary edges
-// TODO: if circumcenter is outside triangle, invert direction
+// FIX: direction bug
 
 export class VoronoiDiagram {
   private points: Point[] = [];
@@ -31,7 +31,6 @@ export class VoronoiDiagram {
         .filter((edge) => !commonEdges.some((commonEdge) => commonEdge.equals(edge)));
 
       neighbours.forEach((neighbour) => {
-        // connect cirumcenters with edges
         const ccA = triangle.getCircumcircle().center;
         const ccB = neighbour.getCircumcircle().center;
 
@@ -39,12 +38,11 @@ export class VoronoiDiagram {
       });
 
       unboundEdges.forEach((edge) => {
-        // connect circumcenters with edges
         const ccA = triangle.getCircumcircle().center;
         const ccB = edge.getMidpoint();
 
         let direction = ccA.directionTo(ccB).normalize();
-        const distance = ccA.distance(ccB);
+        const distance = 1000; // hardcoded because it's cheap
 
         const isInside = triangle.isPointInside(ccA);
 
