@@ -7,6 +7,7 @@ import { DelaunayTriangulation } from '@/Samplers/DelaunayTriangulation';
 
 export class DelaunayTriangulationSO extends SceneObject {
   private triangulation: Triangle[] = [];
+  private boundaryPolygon: Point[] = [];
 
   // #355d68
   // #6aaf9d
@@ -33,6 +34,7 @@ export class DelaunayTriangulationSO extends SceneObject {
     super();
     const delaunayTriangulation = new DelaunayTriangulation(points);
     this.triangulation = delaunayTriangulation.triangulate();
+    this.boundaryPolygon = delaunayTriangulation.getBoundaryPolygon();
   }
 
   render(p5: p5): void {
@@ -45,6 +47,14 @@ export class DelaunayTriangulationSO extends SceneObject {
 
       p5.stroke(p5.color(...this.colourArray[index % this.colourArray.length]));
       p5.triangle(vertexA.x, vertexA.y, vertexB.x, vertexB.y, vertexC.x, vertexC.y);
+    });
+
+    p5.strokeWeight(2);
+    p5.stroke(p5.color(225, 225, 225));
+    console.log(this.boundaryPolygon);
+    this.boundaryPolygon.forEach((point, index) => {
+      const nextPoint = this.boundaryPolygon[(index + 1) % this.boundaryPolygon.length];
+      p5.line(point.x, point.y, nextPoint.x, nextPoint.y);
     });
   }
 

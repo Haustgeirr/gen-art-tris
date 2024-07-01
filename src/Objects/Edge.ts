@@ -19,4 +19,8 @@ export class Edge {
   public getMidpoint(): Point {
     return new Point((this.vertexA.x + this.vertexB.x) / 2, (this.vertexA.y + this.vertexB.y) / 2);
   }
+
+  public includes(p: Point): boolean {
+    return this.vertexA.equals(p) || this.vertexB.equals(p);
+  }
 }

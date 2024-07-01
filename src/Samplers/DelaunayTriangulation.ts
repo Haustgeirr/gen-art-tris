@@ -12,6 +12,7 @@ export class DelaunayTriangulation {
   private triangles: Triangle[] = [];
   private superTriangle: Triangle;
   private edges: Edge[] = [];
+  private boundaryPolygon: Point[] = [];
 
   constructor(points: Point[]) {
     this.points = points;
@@ -19,7 +20,7 @@ export class DelaunayTriangulation {
   }
 
   // Bowyer-Watson algorithm
-  triangulate() {
+  public triangulate() {
     this.triangles.push(this.superTriangle);
 
     this.points.forEach((point) => {
@@ -64,6 +65,25 @@ export class DelaunayTriangulation {
       });
     });
 
+    this.triangles.forEach((triangle) => {
+      const externalPoints: Point[] = [];
+
+      // check if any of the vertices are part of the super triangle
+      // if so add the other vertex of the edge to the external points
+      // and remove the triangle from the final list
+      triangle.getVertices().forEach((vertex) => {
+        if (this.superTriangle.includes(vertex)) {
+          const [vertexA, vertexB] = triangle
+            .getEdges()
+            .find((edge) => !edge.includes(vertex))!
+            .getVertices();
+          externalPoints.push(vertexA, vertexB);
+        }
+      });
+
+      this.boundaryPolygon.push(externalPoints.filter((point) => !externalPoints.includes(point))[0]);
+    });
+
     this.triangles = this.triangles.filter(
       (triangle) => !triangle.getVertices().some((vertex) => this.superTriangle.includes(vertex))
     );
@@ -75,8 +95,12 @@ export class DelaunayTriangulation {
     return this.triangles;
   }
 
-  getEdges() {
+  public getEdges() {
     return this.edges;
+  }
+
+  public getBoundaryPolygon() {
+    return this.boundaryPolygon;
   }
 
   private makeSuperTriangle() {

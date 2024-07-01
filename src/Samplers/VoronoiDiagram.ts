@@ -41,14 +41,26 @@ export class VoronoiDiagram {
         const ccA = triangle.getCircumcircle().center;
         const ccB = edge.getMidpoint();
 
-        let direction = ccA.directionTo(ccB).normalize();
-        const distance = 1000; // hardcoded because it's cheap
+        let direction = ccA.directionTo(ccB);
+        // const distance = 1000; // hardcoded because it's cheap
+        const distance = ccA.distance(ccB);
+        // const dirToCenter = Point.normalize(triangle.getCircumcircle().center);
 
-        const isInside = triangle.isPointInside(ccA);
+        // const isInside = triangle.isPointInside(ccA);
+        // console.log(Point.dot(dirToCenter, direction));
+        // if (isInside) {
+        // if (isInside && Point.dot(dirToCenter, direction) < 0) {
+        // direction = new Point(-direction.x, -direction.y);
+        // }
 
-        if (!isInside) {
-          direction = new Point(-direction.x, -direction.y);
-        }
+        // if (!isInside) {
+        //   direction = new Point(-direction.x, -direction.y);
+        //   if (direction.x < 0 && direction.y > 0) {
+        // console.log({ ccA, isInside, direction });
+        //     // direction = new Point(0, -direction.y);
+        //   }
+        //
+        // }
 
         this.edges.push(new Edge(ccA, new Point(ccA.x + direction.x * distance, ccA.y + direction.y * distance)));
       });
