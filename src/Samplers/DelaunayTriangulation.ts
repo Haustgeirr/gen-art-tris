@@ -65,23 +65,6 @@ export class DelaunayTriangulation {
       });
     });
 
-    const externalPoints: Point[] = [];
-    this.triangles.forEach((triangle) => {
-      // check if any of the vertices are part of the super triangle
-      // if so add the other vertex of the edge to the external points
-      // and remove the triangle from the final list
-      triangle.getVertices().forEach((vertex) => {
-        if (this.superTriangle.includes(vertex)) {
-          const [vertexA, vertexB] = triangle
-            .getEdges()
-            .find((edge) => !edge.includes(vertex))!
-            .getVertices();
-
-          externalPoints.push(vertexA, vertexB);
-        }
-      });
-    });
-
     this.boundaryPolygon = this.triangles
       .filter((triangle) => triangle.getVertices().some((vertex) => this.superTriangle.includes(vertex)))
       .map((triangle) => triangle.getVertices())
@@ -91,7 +74,7 @@ export class DelaunayTriangulation {
       })
       .filter((point, index, self) => self.indexOf(point) === index);
 
-    const centroid = this.calculateCentroid(externalPoints);
+    const centroid = this.calculateCentroid(this.boundaryPolygon);
 
     this.boundaryPolygon = this.boundaryPolygon.sort((a, b) => {
       const angleA = this.angleFromCentroid(a, centroid);

@@ -4,11 +4,11 @@ import { DelaunayTriangulationSO } from '@/SceneObjects/DelaunayTriangulationSO'
 import { VoronoiDiagramSO } from '@/SceneObjects/VoronoiDiagramSO';
 
 const renderer = new SceneRenderer(window.innerWidth, window.innerHeight);
-const pdsObject = new PoissonDiscSO(window.innerWidth, window.innerHeight, 32, 'a');
+const pdsObject = new PoissonDiscSO(window.innerWidth, window.innerHeight, 32);
 const dtObject = new DelaunayTriangulationSO(pdsObject.getPoints());
-const vdObject = new VoronoiDiagramSO(dtObject.getTriangulation());
+const vdObject = new VoronoiDiagramSO(dtObject.getTriangulation(), dtObject.getBoundaryPolygon());
 
 // renderer.addObject(dtObject);
-renderer.addObject(pdsObject);
+// renderer.addObject(pdsObject);
 renderer.addObject(vdObject);
 renderer.start();

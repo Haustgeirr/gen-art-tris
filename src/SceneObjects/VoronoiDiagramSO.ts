@@ -11,9 +11,9 @@ export class VoronoiDiagramSO extends SceneObject {
   private voronoiDiagram: VoronoiDiagram;
   private edges: Edge[] = [];
 
-  constructor(triangulation: Triangle[]) {
+  constructor(triangulation: Triangle[], boundaryPolygon: Point[]) {
     super();
-    this.voronoiDiagram = new VoronoiDiagram(triangulation);
+    this.voronoiDiagram = new VoronoiDiagram(triangulation, boundaryPolygon);
     const voronoiDiagram = this.voronoiDiagram.generate();
 
     this.points = voronoiDiagram.points;

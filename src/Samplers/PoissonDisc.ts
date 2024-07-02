@@ -5,7 +5,7 @@ import { Alea } from '@/Utils/Random';
 
 const MAX_DURATION_MS = 15;
 const SAMPLES_BEFORE_REJECTION = 10;
-const MAX_POINTS = 500;
+const MAX_POINTS = 50;
 
 export class PoissonDisc implements INoiseGenerator {
   windowWidth: number;

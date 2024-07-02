@@ -50,15 +50,20 @@ export class DelaunayTriangulationSO extends SceneObject {
     });
 
     p5.strokeWeight(2);
-    p5.stroke(p5.color(225, 225, 225));
-    console.log(this.boundaryPolygon);
+    p5.stroke(p5.color(255, 0, 0));
+
     this.boundaryPolygon.forEach((point, index) => {
       const nextPoint = this.boundaryPolygon[(index + 1) % this.boundaryPolygon.length];
       p5.line(point.x, point.y, nextPoint.x, nextPoint.y);
+      p5.circle(point.x, point.y, 5);
     });
   }
 
   getTriangulation(): Triangle[] {
     return this.triangulation;
+  }
+
+  getBoundaryPolygon(): Point[] {
+    return this.boundaryPolygon;
   }
 }
