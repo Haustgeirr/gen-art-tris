@@ -65,9 +65,8 @@ export class DelaunayTriangulation {
       });
     });
 
+    const externalPoints: Point[] = [];
     this.triangles.forEach((triangle) => {
-      const externalPoints: Point[] = [];
-
       // check if any of the vertices are part of the super triangle
       // if so add the other vertex of the edge to the external points
       // and remove the triangle from the final list
@@ -77,11 +76,27 @@ export class DelaunayTriangulation {
             .getEdges()
             .find((edge) => !edge.includes(vertex))!
             .getVertices();
+
           externalPoints.push(vertexA, vertexB);
         }
       });
+    });
 
-      this.boundaryPolygon.push(externalPoints.filter((point) => !externalPoints.includes(point))[0]);
+    this.boundaryPolygon = this.triangles
+      .filter((triangle) => triangle.getVertices().some((vertex) => this.superTriangle.includes(vertex)))
+      .map((triangle) => triangle.getVertices())
+      .flat()
+      .filter((point) => {
+        return !this.superTriangle.getVertices().some((vertex) => point.equals(vertex));
+      })
+      .filter((point, index, self) => self.indexOf(point) === index);
+
+    const centroid = this.calculateCentroid(externalPoints);
+
+    this.boundaryPolygon = this.boundaryPolygon.sort((a, b) => {
+      const angleA = this.angleFromCentroid(a, centroid);
+      const angleB = this.angleFromCentroid(b, centroid);
+      return angleA - angleB;
     });
 
     this.triangles = this.triangles.filter(
@@ -101,6 +116,27 @@ export class DelaunayTriangulation {
 
   public getBoundaryPolygon() {
     return this.boundaryPolygon;
+  }
+
+  private calculateCentroid(points: Point[]) {
+    const n = points.length;
+    const centroid = points.reduce(
+      (acc, point) => {
+        acc.x += point.x;
+        acc.y += point.y;
+        return acc;
+      },
+      { x: 0, y: 0 }
+    );
+
+    centroid.x /= n;
+    centroid.y /= n;
+
+    return new Point(centroid.x, centroid.y);
+  }
+
+  private angleFromCentroid(point: Point, centroid: Point) {
+    return Math.atan2(point.y - centroid.y, point.x - centroid.x);
   }
 
   private makeSuperTriangle() {
